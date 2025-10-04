@@ -26,12 +26,18 @@ import {
  * @function createParameterizedRunner
  * @template {TestFunction|DescribeFunction} T
  * @param {Function} jasmineFn - Jasmine function (it, describe, fit, fdescribe)
- * @param {boolean} isTestFunction - True for test functions, false for describe blocks
+ * @param {boolean} shouldSpreadArrayArgs - Whether to spread array arguments (true for it/fit, false for describe/fdescribe)
  * @returns {Function} Function that creates a parameterized test runner
  *
  * @description
  * Higher-order function that creates parameterized test runners for Jasmine.
  * Handles the bridging between our parameterized API and Jasmine's native API.
+ *
+ * The shouldSpreadArrayArgs parameter controls behavior for ARRAY format only:
+ * - true (it/fit): Spreads array elements as individual arguments - testFn(...testCase)
+ * - false (describe/fdescribe): Passes array as single argument - testFn(testCase)
+ *
+ * Object and table formats always pass a single object argument regardless of this flag.
  *
  * The returned function provides a fluent interface with a .where() method that
  * accepts test data in array, object, or table format.
@@ -44,7 +50,7 @@ import {
  */
 export const createParameterizedRunner = <T extends TestFunction | DescribeFunction>(
   jasmineFn: (name: string, fn: any) => any,
-  isTestFunction: boolean
+  shouldSpreadArrayArgs: boolean
 ) => (nameTemplate: string, testFn: T) => {
   if (!nameTemplate || typeof nameTemplate !== 'string') {
     throw new Error(
@@ -121,11 +127,11 @@ export const createParameterizedRunner = <T extends TestFunction | DescribeFunct
         (testCases as any[][]).forEach((testCase, index) => {
           const testName = formatArrayTestName(nameTemplate, testCase, index);
           jasmineFn(testName, function(this: unknown) {
-            // For test functions (iit/fiit), spread array as individual arguments
-            if (isTestFunction) {
+            // Spread array elements as individual arguments (it/fit behavior)
+            if (shouldSpreadArrayArgs) {
               return (testFn as ArrayTestFunction).apply(this, testCase);
             }
-            // For describe functions (idescribe/fidescribe), pass array as-is
+            // Pass array as single argument (describe/fdescribe behavior)
             return (testFn as ObjectSuiteFunction).call(this, testCase);
           });
         });
