@@ -119,7 +119,7 @@ describe('Edge Cases: Special JavaScript Values', () => {
 
     iit('should handle Date objects in object format with $date', (testCase: any) => {
       expect(testCase.date).toBeInstanceOf(Date);
-      expect(testCase.date.getFullYear()).toBe(testCase.year);
+      expect(testCase.date.getUTCFullYear()).toBe(testCase.year);
     }).where([
       { date: date1, year: 2024 },
       { date: date2, year: 2024 },
@@ -144,7 +144,7 @@ describe('Edge Cases: Special JavaScript Values', () => {
 
     iit('date: $date, year: $year (table format)', (testCase: any) => {
       expect(testCase.date).toBeInstanceOf(Date);
-      expect(testCase.date.getFullYear()).toBe(testCase.year);
+      expect(testCase.date.getUTCFullYear()).toBe(testCase.year);
     }).where([
       ['date', 'year'],
       [date1, 2024],

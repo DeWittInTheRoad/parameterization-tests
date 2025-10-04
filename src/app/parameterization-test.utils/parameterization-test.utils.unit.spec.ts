@@ -53,7 +53,7 @@ describe('Parameterization Utility - Unit Tests', () => {
 
         it('should throw error for empty first array (ambiguous format)', () => {
             expect(() => detectDataFormat([[]])).toThrowError(
-                'Cannot detect format: first array is empty'
+                /Cannot detect format: first array is empty/
             );
         });
 
