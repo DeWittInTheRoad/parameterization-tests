@@ -1,5 +1,5 @@
 /**
- * @fileoverview Parameterized test runner factory
+ * Parameterized test runner factory
  * @module parameterized-testing/core/create-parameterized-runner
  */
 
@@ -24,30 +24,30 @@ import { validateObjectConsistency } from '../formatters/validate-object-consist
 /**
  * Generic parameterized test runner factory
  *
- * @function createParameterizedRunner
- * @template {TestFunction|DescribeFunction} T
- * @param {Function} jasmineFn - Jasmine function (it, describe, fit, fdescribe)
- * @param {boolean} shouldSpreadArrayArgs - Whether to spread array arguments (true for it/fit, false for describe/fdescribe)
- * @returns {Function} Function that creates a parameterized test runner
- *
- * @description
  * Higher-order function that creates parameterized test runners for Jasmine.
  * Handles the bridging between our parameterized API and Jasmine's native API.
  *
- * The shouldSpreadArrayArgs parameter controls behavior for ARRAY format only:
- * - true (it/fit): Spreads array elements as individual arguments - testFn(...testCase)
- * - false (describe/fdescribe): Passes array as single argument - testFn(testCase)
+ * The `shouldSpreadArrayArgs` parameter controls behavior for ARRAY format only:
+ * - `true` (it/fit): Spreads array elements as individual arguments - `testFn(...testCase)`
+ * - `false` (describe/fdescribe): Passes array as single argument - `testFn(testCase)`
  *
  * Object and table formats always pass a single object argument regardless of this flag.
  *
- * The returned function provides a fluent interface with a .where() method that
+ * The returned function provides a fluent interface with a `.where()` method that
  * accepts test data in array, object, or table format.
  *
+ * @template T - TestFunction or DescribeFunction
+ * @param jasmineFn - Jasmine function (it, describe, fit, fdescribe)
+ * @param shouldSpreadArrayArgs - Whether to spread array arguments (true for it/fit, false for describe/fdescribe)
+ * @returns Function that creates a parameterized test runner
+ *
  * @example
+ * ```ts
  * const myIit = createParameterizedRunner(it, true);
  * myIit('test $value', (testCase) => {
  *   expect(testCase.value).toBeDefined();
  * }).where([{value: 1}, {value: 2}]);
+ * ```
  */
 export const createParameterizedRunner = <T extends TestFunction | DescribeFunction>(
   jasmineFn: (name: string, fn: any) => any,
@@ -69,17 +69,14 @@ export const createParameterizedRunner = <T extends TestFunction | DescribeFunct
     /**
      * Executes the parameterized tests with the provided test data
      *
-     * @method where
-     * @param {TestSuite|TableFormat} testCases - Test data in any supported format
-     * @returns {void}
-     * @throws {Error} If testCases is not an array
-     *
-     * @description
      * Accepts test cases and generates individual Jasmine tests for each case.
      * Automatically detects the data format and applies the appropriate strategy.
      *
      * For array format with test functions (iit/fiit), arguments are spread.
      * For all other cases, the complete test case is passed as a single argument.
+     *
+     * @param testCases - Test data in any supported format
+     * @throws If testCases is not an array
      */
     where: (testCases: TestSuite | TableFormat) => {
       if (!Array.isArray(testCases)) {

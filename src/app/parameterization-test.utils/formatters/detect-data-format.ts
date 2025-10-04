@@ -1,5 +1,5 @@
 /**
- * @fileoverview Data format detection utility
+ * Data format detection utility
  * @module parameterized-testing/formatters/detect-data-format
  */
 
@@ -9,23 +9,23 @@ import { DataFormat } from '../core/constants';
 /**
  * Detects the format of test case data by examining the first element
  *
- * @function detectDataFormat
- * @param {TestSuite} testCases - Array of test cases to analyze
- * @returns {DataFormatType} The detected format type
- * @throws {Error} If testCases is not an array
- * @throws {Error} If first item is an empty array (ambiguous format)
- *
- * @description
  * Detection logic:
  * - TABLE: First item is array where ALL elements are strings (headers)
  * - ARRAY: First item is array with at least one non-string element
  * - OBJECT: First item is an object
  * - Empty array defaults to OBJECT
  *
+ * @param testCases - Array of test cases to analyze
+ * @returns The detected format type
+ * @throws If testCases is not an array
+ * @throws If first item is an empty array (ambiguous format)
+ *
  * @example
+ * ```ts
  * detectDataFormat([[1, 2], [3, 4]]) // returns 'array'
  * detectDataFormat([{a: 1}, {a: 2}]) // returns 'object'
  * detectDataFormat([['a', 'b'], [1, 2]]) // returns 'table'
+ * ```
  */
 export const detectDataFormat = (testCases: TestSuite): DataFormatType => {
   if (!Array.isArray(testCases)) {

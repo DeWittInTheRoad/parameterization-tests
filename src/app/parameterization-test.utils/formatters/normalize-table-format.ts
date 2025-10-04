@@ -1,5 +1,5 @@
 /**
- * @fileoverview Table format normalizer
+ * Table format normalizer
  * @module parameterized-testing/formatters/normalize-table-format
  */
 
@@ -8,18 +8,17 @@ import type { TableFormat } from '../core/types';
 /**
  * Converts table format (headers + rows) to object format
  *
- * @function normalizeTableFormat
- * @param {TableFormat} testCases - Table format data with headers and rows
- * @returns {Array<Object>} Array of objects with properties from headers
- * @throws {Error} If testCases is empty, headers are missing, or headers contain non-strings
- * @throws {Error} If any data row length doesn't match headers length
- *
- * @description
  * Takes a table-style data structure and converts it to object format
  * for uniform processing. The first array contains header names, and
  * subsequent arrays contain data values.
  *
+ * @param testCases - Table format data with headers and rows
+ * @returns Array of objects with properties from headers
+ * @throws If testCases is empty, headers are missing, or headers contain non-strings
+ * @throws If any data row length doesn't match headers length
+ *
  * @example
+ * ```ts
  * normalizeTableFormat([
  *   ['name', 'age'],
  *   ['Alice', 30],
@@ -29,6 +28,7 @@ import type { TableFormat } from '../core/types';
  * //   {name: 'Alice', age: 30},
  * //   {name: 'Bob', age: 25}
  * // ]
+ * ```
  */
 export const normalizeTableFormat = (testCases: TableFormat): Record<string, any>[] => {
   if (!testCases || testCases.length === 0) {

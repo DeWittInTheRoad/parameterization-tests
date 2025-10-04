@@ -1,17 +1,11 @@
 /**
- * @fileoverview Object consistency validator
+ * Object consistency validator
  * @module parameterized-testing/formatters/validate-object-consistency
  */
 
 /**
  * Validates that all objects in a dataset have consistent keys
  *
- * @function validateObjectConsistency
- * @param {Array<Record<string, any>>} rows - Array of objects to validate
- * @param {string} context - Context string for error messages (e.g., template name)
- * @returns {void}
- *
- * @description
  * Checks that all objects have the same keys as the first object.
  * Warns about:
  * - Missing keys (present in first object, absent in later objects)
@@ -22,11 +16,16 @@
  * - Typos in property names
  * - Refactoring that missed some test cases
  *
+ * @param rows - Array of objects to validate
+ * @param context - Context string for error messages (e.g., template name)
+ *
  * @example
+ * ```ts
  * validateObjectConsistency([
  *   {a: 1, b: 2},
  *   {a: 3, c: 4}  // Warns: missing 'b', unexpected 'c'
  * ], 'test $a $b');
+ * ```
  */
 export function validateObjectConsistency(
   rows: Record<string, any>[],

@@ -1,5 +1,5 @@
 /**
- * @fileoverview Array format test name formatter
+ * Array format test name formatter
  * @module parameterized-testing/formatters/format-array-test-name
  */
 
@@ -8,19 +8,12 @@ import { PLACEHOLDERS } from '../core/constants';
 /**
  * Formats test names with array-style placeholders
  *
- * @function formatArrayTestName
- * @param {string} template - Test name template with placeholders
- * @param {Array} testCase - Array of test values
- * @param {number} index - Zero-based index of current test case
- * @returns {string} Formatted test name with placeholders replaced
- *
- * @description
  * Supported placeholders (printf-style for familiarity):
- * - %# - Replaced with test case index
- * - %s - String representation using String(value)
- * - %i - Integer placeholder (alias for %s, uses String(value))
- * - %o - Object placeholder (alias for %s, uses String(value))
- * - %j - JSON representation using JSON.stringify(value)
+ * - `%#` - Replaced with test case index
+ * - `%s` - String representation using String(value)
+ * - `%i` - Integer placeholder (alias for %s, uses String(value))
+ * - `%o` - Object placeholder (alias for %s, uses String(value))
+ * - `%j` - JSON representation using JSON.stringify(value)
  *
  * **Note:** %s, %i, and %o are functionally identical - all use String(value).
  * They exist for compatibility with printf-style formatting conventions and
@@ -30,20 +23,25 @@ import { PLACEHOLDERS } from '../core/constants';
  * Placeholders are replaced in the order they appear, consuming values from
  * the testCase array sequentially. For fine-grained control, use object format.
  *
+ * @param template - Test name template with placeholders
+ * @param testCase - Array of test values
+ * @param index - Zero-based index of current test case
+ * @returns Formatted test name with placeholders replaced
+ *
  * @example
+ * ```ts
  * formatArrayTestName('test %# with %s and %s', [10, 20], 0)
  * // returns 'test 0 with 10 and 20'
  *
- * @example
  * formatArrayTestName('data: %j', [{a: 1}], 2)
  * // returns 'data: {"a":1}'
  *
- * @example
  * // All produce the same output - semantic difference only
  * formatArrayTestName('%s', [42], 0)    // returns '42'
  * formatArrayTestName('%i', [42], 0)    // returns '42' (same as %s)
  * formatArrayTestName('%o', [42], 0)    // returns '42' (same as %s)
  * formatArrayTestName('%j', [42], 0)    // returns '42' (JSON)
+ * ```
  */
 export const formatArrayTestName = (template: string, testCase: any[], index: number): string => {
   // First replace index placeholder

@@ -1,14 +1,14 @@
 /**
- * @fileoverview Constants for parameterized testing utilities
+ * Constants for parameterized testing utilities
  * @module parameterized-testing/core/constants
  */
 
 /**
  * Placeholder patterns for test name formatting
- * @constant {Object} PLACEHOLDERS
- * @property {Object} INDEX - Index placeholder patterns
- * @property {RegExp} INDEX.array - Array format index placeholder (/%#/g)
- * @property {RegExp} INDEX.object - Object format index placeholder (/\$#/g)
+ *
+ * Contains regex patterns for replacing index placeholders in test names:
+ * - `INDEX.array`: Array format index placeholder (`/%#/g`)
+ * - `INDEX.object`: Object format index placeholder (`/\$#/g`)
  */
 export const PLACEHOLDERS = {
   INDEX: {
@@ -19,10 +19,10 @@ export const PLACEHOLDERS = {
 
 /**
  * Supported data format types
- * @constant {Object} DataFormat
- * @property {'table'} TABLE - Table format with headers and rows
- * @property {'array'} ARRAY - Simple array format
- * @property {'object'} OBJECT - Object format with named properties
+ *
+ * - `TABLE`: Table format with headers and rows
+ * - `ARRAY`: Simple array format
+ * - `OBJECT`: Object format with named properties
  */
 export const DataFormat = {
   TABLE: 'table' as const,
