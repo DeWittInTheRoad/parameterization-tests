@@ -1,17 +1,14 @@
 /**
  * Unit Tests for Parameterization Utility Helper Functions
  *
- * These tests verify the public utility functions that format test names
- * and process test data. These are pure functions that can be tested in isolation
- * and are also exposed as part of the public API for advanced use cases.
+ * These tests verify the internal utility functions that format test names
+ * and process test data. These are pure functions that can be tested in isolation.
  */
 
-import {
-    detectDataFormat,
-    formatObjectTestName,
-    normalizeTableFormat,
-    DataFormat
-} from './parameterization-test.utils';
+import { detectDataFormat } from './formatters/detect-data-format';
+import { formatObjectTestName } from './formatters/format-object-test-name';
+import { normalizeTableFormat } from './formatters/normalize-table-format';
+import { DataFormat } from './core/constants';
 
 describe('Parameterization Utility - Unit Tests', () => {
 

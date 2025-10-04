@@ -8,19 +8,13 @@
  *
  * ## Public API
  *
- * **Primary Functions:**
+ * **Test Functions:**
  * - `iit`, `idescribe` - Parameterized test/suite functions
  * - `fiit`, `fidescribe` - Focused (run only these)
  * - `xiit`, `xidescribe` - Excluded (skip these)
  *
- * **Utility Functions (Advanced):**
- * - `detectDataFormat` - Determine if test data is object/table format
- * - `formatObjectTestName` - Format test names with $property placeholders
- * - `normalizeTableFormat` - Convert table format to object format
+ * **Constants:**
  * - `DataFormat` - Constants for format types (OBJECT, TABLE)
- *
- * These utilities are exported for advanced use cases like custom test runners
- * or test name generation.
  *
  * ## Type Safety Limitations
  *
@@ -64,10 +58,7 @@ import type { TestFunction, DescribeFunction } from './core/types';
 // Import core utilities
 import { createParameterizedRunner } from './core/create-parameterized-runner';
 
-// Re-export utility functions for advanced use cases
-export { detectDataFormat } from './formatters/detect-data-format';
-export { formatObjectTestName } from './formatters/format-object-test-name';
-export { normalizeTableFormat } from './formatters/normalize-table-format';
+// Re-export constants
 export { DataFormat } from './core/constants';
 
 /**
