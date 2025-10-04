@@ -33,7 +33,9 @@ export const formatObjectTestName = (template: string, testCase: Record<string, 
   const withIndex = template.replace(PLACEHOLDERS.INDEX.object, index.toString());
 
   return Object.entries(testCase).reduce((result, [key, value]) => {
-    const regex = new RegExp(`\\$${key}`, 'g');
+    // Escape regex special characters in property name to prevent injection
+    const escapedKey = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(`\\$${escapedKey}`, 'g');
     return result.replace(regex, String(value));
   }, withIndex);
 };

@@ -168,6 +168,16 @@ describe('Parameterization Utility - Unit Tests', () => {
             const result = formatObjectTestName('$name $age', { name: 'Alice' }, 0);
             expect(result).toBe('Alice $age');
         });
+
+        it('should handle property names with regex special characters', () => {
+            const result = formatObjectTestName('test $a.b and $c[0]', { 'a.b': 'value1', 'c[0]': 'value2' }, 0);
+            expect(result).toBe('test value1 and value2');
+        });
+
+        it('should handle property names with all regex metacharacters', () => {
+            const result = formatObjectTestName('$a*b $c+d $e?f', { 'a*b': '1', 'c+d': '2', 'e?f': '3' }, 0);
+            expect(result).toBe('1 2 3');
+        });
     });
 
     // ===========================================
