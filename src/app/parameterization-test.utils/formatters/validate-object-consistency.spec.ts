@@ -136,4 +136,83 @@ describe('validateObjectConsistency', () => {
             expect(error.message).toContain('All test cases must have the same object structure');
         }
     });
+
+    // Suggestion Tests
+    describe('error message suggestions', () => {
+        it('should suggest typo fix when keys are similar', () => {
+            expect(() => {
+                validateObjectConsistency([
+                    {name: 'Alice', age: 30},
+                    {name: 'Bob', agee: 25}  // Typo: 'agee' instead of 'age'
+                ], 'test');
+            }).toThrowError(/Did you mean 'age' instead of 'agee'/);
+        });
+
+        it('should suggest adding missing properties', () => {
+            expect(() => {
+                validateObjectConsistency([
+                    {name: 'Alice', age: 30},
+                    {name: 'Bob'}  // Missing 'age'
+                ], 'test');
+            }).toThrowError(/Add property 'age' to this test case/);
+        });
+
+        it('should suggest adding multiple missing properties', () => {
+            expect(() => {
+                validateObjectConsistency([
+                    {name: 'Alice', age: 30, active: true},
+                    {name: 'Bob'}  // Missing 'age' and 'active'
+                ], 'test');
+            }).toThrowError(/Add properties 'age', 'active' to this test case/);
+        });
+
+        it('should suggest removing unexpected properties', () => {
+            expect(() => {
+                validateObjectConsistency([
+                    {name: 'Alice'},
+                    {name: 'Bob', extra: 'data'}  // Unexpected 'extra'
+                ], 'test');
+            }).toThrowError(/Remove property 'extra' from this test case/);
+        });
+
+        it('should suggest removing multiple unexpected properties', () => {
+            expect(() => {
+                validateObjectConsistency([
+                    {name: 'Alice'},
+                    {name: 'Bob', x: 1, y: 2}  // Unexpected 'x' and 'y'
+                ], 'test');
+            }).toThrowError(/Remove properties 'x', 'y' from this test case/);
+        });
+
+        it('should prioritize typo suggestions over generic add/remove', () => {
+            expect(() => {
+                validateObjectConsistency([
+                    {username: 'alice', password: 'secret'},
+                    {usrname: 'bob', password: 'pass'}  // Typo: 'usrname'
+                ], 'test');
+            }).toThrowError(/Did you mean 'username' instead of 'usrname'/);
+        });
+
+        it('should detect multiple typos', () => {
+            try {
+                validateObjectConsistency([
+                    {first: 'Alice', last: 'Smith'},
+                    {frist: 'Bob', lst: 'Jones'}  // Two typos
+                ], 'test');
+                fail('Should have thrown');
+            } catch (error: any) {
+                // Should suggest at least one typo fix
+                expect(error.message).toMatch(/Did you mean/);
+            }
+        });
+
+        it('should not suggest when keys are completely different', () => {
+            expect(() => {
+                validateObjectConsistency([
+                    {name: 'Alice', age: 30},
+                    {name: 'Bob', role: 'admin'}  // 'role' is not similar to 'age'
+                ], 'test');
+            }).toThrowError(/Add property 'age' to this test case/);
+        });
+    });
 });
