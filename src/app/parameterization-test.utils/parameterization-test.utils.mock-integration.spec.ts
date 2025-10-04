@@ -1,0 +1,302 @@
+/**
+ * Mock Integration Tests for Parameterized Testing Utility
+ *
+ * These tests verify the integration between public API and Jasmine by mocking
+ * Jasmine functions to verify correct data flow, error handling, and edge cases.
+ *
+ * Unlike parameterization-test.utils.integration.spec.ts (E2E tests that run real Jasmine),
+ * these tests mock Jasmine to verify what data is passed and how errors are handled.
+ */
+
+import { createParameterizedRunner } from './core/create-parameterized-runner';
+
+describe('Parameterized Testing Utility - Mock Integration', () => {
+
+    // ===========================================
+    // TEST FUNCTION WITH ARRAY FORMAT
+    // ===========================================
+
+    describe('test function with array format (shouldSpreadArrayArgs=true)', () => {
+        it('should spread array elements as individual arguments', () => {
+            const mockJasmineFn = jasmine.createSpy('jasmineFn');
+            const testFn = jasmine.createSpy('testFn');
+
+            const runner = createParameterizedRunner(mockJasmineFn, true);
+            runner('test %s + %s', testFn).where([
+                [1, 2],
+                [3, 4]
+            ]);
+
+            // Verify Jasmine was called twice (once per test case)
+            expect(mockJasmineFn).toHaveBeenCalledTimes(2);
+
+            // Verify test names
+            expect(mockJasmineFn.calls.argsFor(0)[0]).toBe('test 1 + 2');
+            expect(mockJasmineFn.calls.argsFor(1)[0]).toBe('test 3 + 4');
+
+            // Execute the test functions to verify arguments are spread
+            mockJasmineFn.calls.argsFor(0)[1].call({});
+            expect(testFn).toHaveBeenCalledWith(1, 2);
+
+            mockJasmineFn.calls.argsFor(1)[1].call({});
+            expect(testFn).toHaveBeenCalledWith(3, 4);
+        });
+    });
+
+    // ===========================================
+    // DESCRIBE FUNCTION WITH ARRAY FORMAT
+    // ===========================================
+
+    describe('describe function with array format (shouldSpreadArrayArgs=false)', () => {
+        it('should pass array as single argument', () => {
+            const mockJasmineFn = jasmine.createSpy('jasmineFn');
+            const testFn = jasmine.createSpy('testFn');
+
+            const runner = createParameterizedRunner(mockJasmineFn, false);
+            runner('suite %s', testFn).where([
+                [1, 2],
+                [3, 4]
+            ]);
+
+            // Verify test names
+            expect(mockJasmineFn.calls.argsFor(0)[0]).toBe('suite 1');
+            expect(mockJasmineFn.calls.argsFor(1)[0]).toBe('suite 3');
+
+            // Execute the test functions to verify arrays are NOT spread
+            mockJasmineFn.calls.argsFor(0)[1].call({});
+            expect(testFn).toHaveBeenCalledWith([1, 2]);
+
+            mockJasmineFn.calls.argsFor(1)[1].call({});
+            expect(testFn).toHaveBeenCalledWith([3, 4]);
+        });
+    });
+
+    // ===========================================
+    // OBJECT FORMAT
+    // ===========================================
+
+    describe('object format', () => {
+        it('should pass object as single argument', () => {
+            const mockJasmineFn = jasmine.createSpy('jasmineFn');
+            const testFn = jasmine.createSpy('testFn');
+
+            const runner = createParameterizedRunner(mockJasmineFn, true);
+            runner('test $a + $b', testFn).where([
+                {a: 1, b: 2},
+                {a: 3, b: 4}
+            ]);
+
+            // Verify test names
+            expect(mockJasmineFn.calls.argsFor(0)[0]).toBe('test 1 + 2');
+            expect(mockJasmineFn.calls.argsFor(1)[0]).toBe('test 3 + 4');
+
+            // Execute to verify objects are passed
+            mockJasmineFn.calls.argsFor(0)[1].call({});
+            expect(testFn).toHaveBeenCalledWith({a: 1, b: 2});
+
+            mockJasmineFn.calls.argsFor(1)[1].call({});
+            expect(testFn).toHaveBeenCalledWith({a: 3, b: 4});
+        });
+    });
+
+    // ===========================================
+    // TABLE FORMAT
+    // ===========================================
+
+    describe('table format', () => {
+        it('should normalize table to objects', () => {
+            const mockJasmineFn = jasmine.createSpy('jasmineFn');
+            const testFn = jasmine.createSpy('testFn');
+
+            const runner = createParameterizedRunner(mockJasmineFn, true);
+            runner('test $a + $b', testFn).where([
+                ['a', 'b'],
+                [1, 2],
+                [3, 4]
+            ]);
+
+            // Verify test names
+            expect(mockJasmineFn.calls.argsFor(0)[0]).toBe('test 1 + 2');
+            expect(mockJasmineFn.calls.argsFor(1)[0]).toBe('test 3 + 4');
+
+            // Execute to verify normalized objects are passed
+            mockJasmineFn.calls.argsFor(0)[1].call({});
+            expect(testFn).toHaveBeenCalledWith({a: 1, b: 2});
+
+            mockJasmineFn.calls.argsFor(1)[1].call({});
+            expect(testFn).toHaveBeenCalledWith({a: 3, b: 4});
+        });
+    });
+
+    // ===========================================
+    // ERROR HANDLING
+    // ===========================================
+
+    describe('error handling', () => {
+        it('should throw error for invalid test name template', () => {
+            const mockJasmineFn = jasmine.createSpy('jasmineFn');
+            const runner = createParameterizedRunner(mockJasmineFn, true);
+
+            expect(() => {
+                (runner as any)('', () => {}).where([[1]]);
+            }).toThrowError(/Test name template must be a non-empty string/);
+        });
+
+        it('should throw error for invalid test function', () => {
+            const mockJasmineFn = jasmine.createSpy('jasmineFn');
+            const runner = createParameterizedRunner(mockJasmineFn, true);
+
+            expect(() => {
+                (runner as any)('test', null).where([[1]]);
+            }).toThrowError(/Test function must be a valid function/);
+        });
+
+        it('should throw error for non-array test cases', () => {
+            const mockJasmineFn = jasmine.createSpy('jasmineFn');
+            const runner = createParameterizedRunner(mockJasmineFn, true);
+
+            expect(() => {
+                runner('test', () => {}).where({a: 1} as any);
+            }).toThrowError(/Test cases must be an array.*received: object/);
+        });
+
+        it('should throw error for template/format mismatch (array placeholders with object data)', () => {
+            const mockJasmineFn = jasmine.createSpy('jasmineFn');
+            const runner = createParameterizedRunner(mockJasmineFn, true);
+
+            expect(() => {
+                runner('test %s', () => {}).where([{a: 1}]);
+            }).toThrowError(/Template\/format mismatch.*array-style placeholders.*object format/);
+        });
+
+        it('should throw error for template/format mismatch (object placeholders with array data)', () => {
+            const mockJasmineFn = jasmine.createSpy('jasmineFn');
+            const runner = createParameterizedRunner(mockJasmineFn, true);
+
+            expect(() => {
+                runner('test $a', () => {}).where([[1, 2]]);
+            }).toThrowError(/Template\/format mismatch.*object-style placeholders.*array format/);
+        });
+    });
+
+    // ===========================================
+    // EDGE CASES
+    // ===========================================
+
+    describe('edge cases', () => {
+        it('should handle empty test cases array (no tests generated)', () => {
+            const mockJasmineFn = jasmine.createSpy('jasmineFn');
+            const runner = createParameterizedRunner(mockJasmineFn, true);
+
+            runner('test', () => {}).where([]);
+
+            expect(mockJasmineFn).not.toHaveBeenCalled();
+        });
+
+        it('should handle index placeholder (%#)', () => {
+            const mockJasmineFn = jasmine.createSpy('jasmineFn');
+            const runner = createParameterizedRunner(mockJasmineFn, true);
+
+            runner('case %#: value %s', () => {}).where([[1], [2], [3]]);
+
+            expect(mockJasmineFn.calls.argsFor(0)[0]).toBe('case 0: value 1');
+            expect(mockJasmineFn.calls.argsFor(1)[0]).toBe('case 1: value 2');
+            expect(mockJasmineFn.calls.argsFor(2)[0]).toBe('case 2: value 3');
+        });
+
+        it('should handle index placeholder ($#)', () => {
+            const mockJasmineFn = jasmine.createSpy('jasmineFn');
+            const runner = createParameterizedRunner(mockJasmineFn, true);
+
+            runner('case $#: value $a', () => {}).where([{a: 1}, {a: 2}]);
+
+            expect(mockJasmineFn.calls.argsFor(0)[0]).toBe('case 0: value 1');
+            expect(mockJasmineFn.calls.argsFor(1)[0]).toBe('case 1: value 2');
+        });
+
+        it('should preserve this context in test functions', () => {
+            const mockJasmineFn = jasmine.createSpy('jasmineFn');
+            let capturedThis: any;
+            const testFn = function(this: any) {
+                capturedThis = this;
+            };
+
+            const runner = createParameterizedRunner(mockJasmineFn, true);
+            runner('test', testFn).where([[1]]);
+
+            const testContext = {foo: 'bar'};
+            mockJasmineFn.calls.argsFor(0)[1].call(testContext);
+
+            expect(capturedThis).toBe(testContext);
+        });
+
+        it('should handle async test functions', (done) => {
+            const mockJasmineFn = jasmine.createSpy('jasmineFn');
+            const testFn = jasmine.createSpy('testFn').and.returnValue(Promise.resolve());
+
+            const runner = createParameterizedRunner(mockJasmineFn, true);
+            runner('test', testFn).where([[1]]);
+
+            const result = mockJasmineFn.calls.argsFor(0)[1].call({});
+            expect(result).toEqual(jasmine.any(Promise));
+
+            result.then(() => {
+                expect(testFn).toHaveBeenCalled();
+                done();
+            });
+        });
+    });
+
+    // ===========================================
+    // DATA FLOW VERIFICATION
+    // ===========================================
+
+    describe('data flow verification', () => {
+        it('should pass correct data for multiple test cases', () => {
+            const mockJasmineFn = jasmine.createSpy('jasmineFn');
+            const testFn = jasmine.createSpy('testFn');
+
+            const runner = createParameterizedRunner(mockJasmineFn, true);
+            runner('test %s', testFn).where([
+                [1],
+                [2],
+                [3],
+                [4],
+                [5]
+            ]);
+
+            expect(mockJasmineFn).toHaveBeenCalledTimes(5);
+
+            // Execute all tests
+            for (let i = 0; i < 5; i++) {
+                mockJasmineFn.calls.argsFor(i)[1].call({});
+            }
+
+            // Verify each test received correct value
+            expect(testFn.calls.argsFor(0)[0]).toBe(1);
+            expect(testFn.calls.argsFor(1)[0]).toBe(2);
+            expect(testFn.calls.argsFor(2)[0]).toBe(3);
+            expect(testFn.calls.argsFor(3)[0]).toBe(4);
+            expect(testFn.calls.argsFor(4)[0]).toBe(5);
+        });
+
+        it('should handle complex objects with nested data', () => {
+            const mockJasmineFn = jasmine.createSpy('jasmineFn');
+            const testFn = jasmine.createSpy('testFn');
+
+            const complexData = [
+                {user: {name: 'Alice', age: 30}, config: {debug: true}},
+                {user: {name: 'Bob', age: 25}, config: {debug: false}}
+            ];
+
+            const runner = createParameterizedRunner(mockJasmineFn, true);
+            runner('test $user', testFn).where(complexData);
+
+            mockJasmineFn.calls.argsFor(0)[1].call({});
+            mockJasmineFn.calls.argsFor(1)[1].call({});
+
+            expect(testFn.calls.argsFor(0)[0]).toEqual(complexData[0]);
+            expect(testFn.calls.argsFor(1)[0]).toEqual(complexData[1]);
+        });
+    });
+});
