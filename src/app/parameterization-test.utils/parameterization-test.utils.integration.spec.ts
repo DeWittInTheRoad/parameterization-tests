@@ -14,7 +14,7 @@ describe('Parameterized Testing Utility - Integration', () => {
     // ===========================================
 
     describe('iit with array format', () => {
-        iit('should add %s and %s to get %s', (a, b, expected) => {
+        iit('should add %s and %s to get %s', (a: any, b: any, expected: any) => {
             expect(a + b).toBe(expected);
         }).where([
             [2, 3, 5],
@@ -22,21 +22,21 @@ describe('Parameterized Testing Utility - Integration', () => {
             [10, 20, 30]
         ]);
 
-        iit('test case %#: should multiply %s by %s', (a, b) => {
+        iit('test case %#: should multiply %s by %s', (a: any, b: any) => {
             expect(a * b).toBeGreaterThan(0);
         }).where([
             [2, 3],
             [4, 5]
         ]);
 
-        iit('value %i should be positive', (val) => {
+        iit('value %i should be positive', (val: any) => {
             expect(val).toBeGreaterThan(0);
         }).where([
             [42],
             [100]
         ]);
 
-        iit('object %j should have property', (obj) => {
+        iit('object %j should have property', (obj: any) => {
             expect(obj).toBeDefined();
             expect(obj.a).toBeDefined();
         }).where([
@@ -50,7 +50,7 @@ describe('Parameterized Testing Utility - Integration', () => {
     // ===========================================
 
     describe('iit with object format', () => {
-        iit('should add $a and $b to get $expected', (testCase) => {
+        iit('should add $a and $b to get $expected', (testCase: any) => {
             expect(testCase.a + testCase.b).toBe(testCase.expected);
         }).where([
             { a: 2, b: 3, expected: 5 },
@@ -58,7 +58,7 @@ describe('Parameterized Testing Utility - Integration', () => {
             { a: 10, b: 20, expected: 30 }
         ]);
 
-        iit('test case $#: $name should be $status', (testCase) => {
+        iit('test case $#: $name should be $status', (testCase: any) => {
             expect(testCase.name).toBeDefined();
             expect(testCase.status).toBeDefined();
         }).where([
@@ -66,7 +66,7 @@ describe('Parameterized Testing Utility - Integration', () => {
             { name: 'second', status: 'inactive' }
         ]);
 
-        iit('$operation: $a $operator $b = $result', (testCase) => {
+        iit('$operation: $a $operator $b = $result', (testCase: any) => {
             if (testCase.operator === '+') {
                 expect(testCase.a + testCase.b).toBe(testCase.result);
             } else if (testCase.operator === '*') {
@@ -83,7 +83,7 @@ describe('Parameterized Testing Utility - Integration', () => {
     // ===========================================
 
     describe('iit with table format', () => {
-        iit('should add $a and $b to get $expected', (testCase) => {
+        iit('should add $a and $b to get $expected', (testCase: any) => {
             expect(testCase.a + testCase.b).toBe(testCase.expected);
         }).where([
             ['a', 'b', 'expected'],
@@ -92,7 +92,7 @@ describe('Parameterized Testing Utility - Integration', () => {
             [10, 20, 30]
         ]);
 
-        iit('test $#: $name is $status', (testCase) => {
+        iit('test $#: $name is $status', (testCase: any) => {
             expect(testCase.name).toBeDefined();
             expect(testCase.status).toBeDefined();
         }).where([
@@ -107,7 +107,7 @@ describe('Parameterized Testing Utility - Integration', () => {
     // ===========================================
 
     describe('idescribe with array format', () => {
-        idescribe('Calculator with %s and %s', (testCase) => {
+        idescribe('Calculator with %s and %s', (testCase: any) => {
             it('should have valid test data', () => {
                 expect(testCase).toBeDefined();
                 expect(Array.isArray(testCase)).toBe(true);
@@ -129,7 +129,7 @@ describe('Parameterized Testing Utility - Integration', () => {
     // ===========================================
 
     describe('idescribe with object format', () => {
-        idescribe('Testing $feature with $config', (testCase) => {
+        idescribe('Testing $feature with $config', (testCase: any) => {
             it('should have feature property', () => {
                 expect(testCase.feature).toBeDefined();
             });
@@ -153,7 +153,7 @@ describe('Parameterized Testing Utility - Integration', () => {
     // ===========================================
 
     describe('idescribe with table format', () => {
-        idescribe('Testing $browser on $os', (testCase) => {
+        idescribe('Testing $browser on $os', (testCase: any) => {
             it('should have browser property', () => {
                 expect(testCase.browser).toBeDefined();
             });
@@ -178,32 +178,32 @@ describe('Parameterized Testing Utility - Integration', () => {
     // ===========================================
 
     describe('edge cases', () => {
-        iit('should handle empty where clause', (testCase) => {
+        iit('should handle empty where clause', (testCase: any) => {
             // This test should never run
             expect(true).toBe(false);
         }).where([]);
 
-        iit('should handle single test case $value', (testCase) => {
+        iit('should handle single test case $value', (testCase: any) => {
             expect(testCase.value).toBe(42);
         }).where([
             { value: 42 }
         ]);
 
-        iit('should handle undefined and null $a $b', (testCase) => {
+        iit('should handle undefined and null $a $b', (testCase: any) => {
             expect(testCase.a).toBeUndefined();
             expect(testCase.b).toBeNull();
         }).where([
             { a: undefined, b: null }
         ]);
 
-        iit('should handle boolean $active', (testCase) => {
+        iit('should handle boolean $active', (testCase: any) => {
             expect(typeof testCase.active).toBe('boolean');
         }).where([
             { active: true },
             { active: false }
         ]);
 
-        iit('should handle numbers including zero $num', (testCase) => {
+        iit('should handle numbers including zero $num', (testCase: any) => {
             expect(typeof testCase.num).toBe('number');
         }).where([
             { num: 0 },
@@ -217,7 +217,7 @@ describe('Parameterized Testing Utility - Integration', () => {
     // ===========================================
 
     describe('async test support', () => {
-        iit('async test $value should resolve', async (testCase) => {
+        iit('async test $value should resolve', async (testCase: any) => {
             const result = await Promise.resolve(testCase.value * 2);
             expect(result).toBe(testCase.value * 2);
         }).where([

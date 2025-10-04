@@ -42,7 +42,7 @@ describe('Parameterized Testing - Feature Demonstration', () => {
         // "test case 0: 1 + 2"
         // "test case 1: 3 + 4"
 
-        iit('value is %i', (val) => {
+        iit('value is %i', (val: any) => {
             expect(val).toBeGreaterThan(0);
         }).where([
             [42],
@@ -52,7 +52,7 @@ describe('Parameterized Testing - Feature Demonstration', () => {
         // "value is 42"
         // "value is 100"
 
-        iit('object is %j', (obj) => {
+        iit('object is %j', (obj: any) => {
             expect(obj.a).toBeDefined();
         }).where([
             [{ a: 1, b: 2 }],
@@ -69,7 +69,7 @@ describe('Parameterized Testing - Feature Demonstration', () => {
 
     describe('Object Format - Passes whole object', () => {
 
-        iit('should add $a and $b to get $expected', (testCase) => {
+        iit('should add $a and $b to get $expected', (testCase: any) => {
             expect(testCase.a + testCase.b).toBe(testCase.expected);
         }).where([
             { a: 2, b: 3, expected: 5 },
@@ -81,7 +81,7 @@ describe('Parameterized Testing - Feature Demonstration', () => {
         // "should add 1 and 4 to get 5"
         // "should add 10 and 20 to get 30"
 
-        iit('test case $#: $name', (testCase) => {
+        iit('test case $#: $name', (testCase: any) => {
             expect(testCase.name).toBeDefined();
         }).where([
             { name: 'first' },
@@ -93,7 +93,7 @@ describe('Parameterized Testing - Feature Demonstration', () => {
         // "test case 1: second"
         // "test case 2: third"
 
-        iit('$operation: $a $operator $b = $result', (testCase) => {
+        iit('$operation: $a $operator $b = $result', (testCase: any) => {
             if (testCase.operator === '+') {
                 expect(testCase.a + testCase.b).toBe(testCase.result);
             } else if (testCase.operator === '*') {
@@ -107,7 +107,7 @@ describe('Parameterized Testing - Feature Demonstration', () => {
         // "add: 2 + 3 = 5"
         // "multiply: 4 * 5 = 20"
 
-        iit('status is $status for user $name', (testCase) => {
+        iit('status is $status for user $name', (testCase: any) => {
             expect(['active', 'inactive']).toContain(testCase.status);
         }).where([
             { status: 'active', name: 'Alice' },
@@ -124,7 +124,7 @@ describe('Parameterized Testing - Feature Demonstration', () => {
 
     describe('Table Format - Headers + Rows', () => {
 
-        iit('should add $a and $b to get $expected', (testCase) => {
+        iit('should add $a and $b to get $expected', (testCase: any) => {
             expect(testCase.a + testCase.b).toBe(testCase.expected);
         }).where([
             ['a', 'b', 'expected'],
@@ -137,7 +137,7 @@ describe('Parameterized Testing - Feature Demonstration', () => {
         // "should add 1 and 4 to get 5"
         // "should add 10 and 20 to get 30"
 
-        iit('test $#: $name is $status', (testCase) => {
+        iit('test $#: $name is $status', (testCase: any) => {
             expect(testCase.name).toBeDefined();
             expect(testCase.status).toBeDefined();
         }).where([
@@ -149,7 +149,7 @@ describe('Parameterized Testing - Feature Demonstration', () => {
         // "test 0: user1 is active"
         // "test 1: user2 is inactive"
 
-        iit('$browser on $os', (testCase) => {
+        iit('$browser on $os', (testCase: any) => {
             expect(testCase.browser).toBeDefined();
             expect(testCase.os).toBeDefined();
         }).where([
@@ -168,7 +168,7 @@ describe('Parameterized Testing - Feature Demonstration', () => {
 
     describe('idescribe - Parameterized describe blocks', () => {
 
-        idescribe('Calculator with %s and %s', (testCase) => {
+        idescribe('Calculator with %s and %s', (testCase: any) => {
             it('should have valid array data', () => {
                 expect(testCase).toBeDefined();
                 expect(Array.isArray(testCase)).toBe(true);
@@ -190,7 +190,7 @@ describe('Parameterized Testing - Feature Demonstration', () => {
         //   - "should have valid array data"
         //   - "should be able to sum values"
 
-        idescribe('Testing $feature with $config', (testCase) => {
+        idescribe('Testing $feature with $config', (testCase: any) => {
             it('should have feature and config', () => {
                 expect(testCase.feature).toBeDefined();
                 expect(testCase.config).toBeDefined();
@@ -205,7 +205,7 @@ describe('Parameterized Testing - Feature Demonstration', () => {
         // "Testing signup with dev"
         //   - "should have feature and config"
 
-        idescribe('Browser $browser', (testCase) => {
+        idescribe('Browser $browser', (testCase: any) => {
             it('should have browser name', () => {
                 expect(testCase.browser).toBeDefined();
             });
@@ -232,14 +232,14 @@ describe('Parameterized Testing - Feature Demonstration', () => {
         });
 
         // Uncomment to focus only on these tests
-        // fiit('focused test $value', (testCase) => {
+        // fiit('focused test $value', (testCase: any) => {
         //     expect(testCase.value).toBeDefined();
         // }).where([
         //     { value: 1 },
         //     { value: 2 }
         // ]);
 
-        // fidescribe('Focused suite $name', (testCase) => {
+        // fidescribe('Focused suite $name', (testCase: any) => {
         //     it('runs only this suite', () => {
         //         expect(testCase.name).toBeDefined();
         //     });
@@ -254,7 +254,7 @@ describe('Parameterized Testing - Feature Demonstration', () => {
 
     describe('Excluded Tests - Use to skip tests', () => {
 
-        xiit('skipped test $value', (testCase) => {
+        xiit('skipped test $value', (testCase: any) => {
             // This won't run
             expect(testCase.value).toBeDefined();
         }).where([
@@ -265,7 +265,7 @@ describe('Parameterized Testing - Feature Demonstration', () => {
         // "skipped test 1" (pending)
         // "skipped test 2" (pending)
 
-        xidescribe('Skipped suite $name', (testCase) => {
+        xidescribe('Skipped suite $name', (testCase: any) => {
             it('this will not run', () => {
                 expect(testCase.name).toBeDefined();
             });
@@ -282,12 +282,12 @@ describe('Parameterized Testing - Feature Demonstration', () => {
 
     describe('Edge Cases & Special Values', () => {
 
-        iit('should handle empty array (no tests created)', (testCase) => {
+        iit('should handle empty array (no tests created)', (testCase: any) => {
             expect(true).toBe(false); // Won't run
         }).where([]);
         // ✅ Karma Output: (no tests generated)
 
-        iit('should handle undefined $a and null $b', (testCase) => {
+        iit('should handle undefined $a and null $b', (testCase: any) => {
             expect(testCase.a).toBeUndefined();
             expect(testCase.b).toBeNull();
         }).where([
@@ -296,7 +296,7 @@ describe('Parameterized Testing - Feature Demonstration', () => {
         // ✅ Karma Output:
         // "should handle undefined undefined and null null"
 
-        iit('should handle boolean $active', (testCase) => {
+        iit('should handle boolean $active', (testCase: any) => {
             expect(typeof testCase.active).toBe('boolean');
         }).where([
             { active: true },
@@ -306,7 +306,7 @@ describe('Parameterized Testing - Feature Demonstration', () => {
         // "should handle boolean true"
         // "should handle boolean false"
 
-        iit('should handle zero $num', (testCase) => {
+        iit('should handle zero $num', (testCase: any) => {
             expect(testCase.num).toBe(0);
         }).where([
             { num: 0 }
@@ -314,7 +314,7 @@ describe('Parameterized Testing - Feature Demonstration', () => {
         // ✅ Karma Output:
         // "should handle zero 0"
 
-        iit('should handle nested object $name', (testCase) => {
+        iit('should handle nested object $name', (testCase: any) => {
             expect(testCase.data.nested.value).toBe('deep');
         }).where([
             { name: 'test', data: { nested: { value: 'deep' } } }
@@ -329,7 +329,7 @@ describe('Parameterized Testing - Feature Demonstration', () => {
 
     describe('Async/Await Support', () => {
 
-        iit('async operation for $value', async (testCase) => {
+        iit('async operation for $value', async (testCase: any) => {
             const result = await Promise.resolve(testCase.value * 2);
             expect(result).toBe(testCase.value * 2);
         }).where([
@@ -342,7 +342,7 @@ describe('Parameterized Testing - Feature Demonstration', () => {
         // "async operation for 2"
         // "async operation for 3"
 
-        iit('delayed test %s ms', async (delay) => {
+        iit('delayed test %s ms', async (delay: any) => {
             const start = Date.now();
             await new Promise(resolve => setTimeout(resolve, delay));
             const elapsed = Date.now() - start;

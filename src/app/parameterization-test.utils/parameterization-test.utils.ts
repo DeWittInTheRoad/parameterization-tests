@@ -5,7 +5,7 @@
  * Provides data-driven testing capabilities for Jasmine test suites, allowing developers
  * to run the same test logic against multiple sets of test data. Supports three data formats:
  * array format, object format, and table format.
- * 
+ *
  * @example
  * // Array format - spreads arguments
  * iit('should add %s and %s to get %s', (a, b, expected) => {
@@ -14,7 +14,7 @@
  *   [2, 3, 5],
  *   [10, 20, 30]
  * ]);
- * 
+ *
  * @example
  * // Object format - passes whole object
  * iit('should add $a and $b to get $expected', (testCase) => {
@@ -23,7 +23,7 @@
  *   {a: 2, b: 3, expected: 5},
  *   {a: 10, b: 20, expected: 30}
  * ]);
- * 
+ *
  * @example
  * // Table format - headers with data rows
  * iit('should add $a and $b to get $expected', (testCase) => {
@@ -35,99 +35,47 @@
  * ]);
  */
 
-/**
- * Type definition for test functions used with iit and fiit
- * @typedef {Function} TestFunction
- * @param {...any} args - Individual arguments when using array format
- * @returns {void|Promise<any>}
- */
-type TestFunction = ((...args: any[]) => void) | ((testCase: Record<string, any>) => void | Promise<any>);
+// Import types and constants from separate modules
+import type {
+  ArrayTestFunction,
+  ObjectTestFunction,
+  TestFunction,
+  ArraySuiteFunction,
+  ObjectSuiteFunction,
+  DescribeFunction,
+  TestCase,
+  TestSuite,
+  TableFormat,
+  DataFormatType
+} from './core/types';
 
-/**
- * Type definition for describe functions used with idescribe and focusidescribe
- * @typedef {Function} DescribeFunction
- * @param {...any} args - Individual arguments when using array format
- * @returns {void}
- */
-type DescribeFunction = ((...args: any[]) => void) | ((testCase: Record<string, any>) => void);
-
-/**
- * Type definition for a single test case
- * @typedef {Array|Object} TestCase
- */
-type TestCase = any[] | Record<string, any>;
-
-/**
- * Type definition for a collection of test cases
- * @typedef {Array<TestCase>} TestSuite
- */
-type TestSuite = TestCase[];
-
-/**
- * Type definition for table format data structure
- * @typedef {Array} TableFormat
- * @description First element is string array (headers), followed by data rows
- */
-type TableFormat = [string[], ...any[][]];
-
-/**
- * Placeholder patterns for test name formatting
- * @constant {Object} PLACEHOLDERS
- * @property {Object} INDEX - Index placeholder patterns
- * @property {RegExp} INDEX.array - Pattern for array format (%#)
- * @property {RegExp} INDEX.object - Pattern for object format ($#)
- * @property {RegExp} STRING - Pattern for string values (%s)
- * @property {RegExp} INTEGER - Pattern for integer values (%i)
- * @property {RegExp} JSON - Pattern for JSON serialization (%j)
- * @property {RegExp} OBJECT - Pattern for object string representation (%o)
- */
-const PLACEHOLDERS = {
-  INDEX: { array: /%#/g, object: /\$#/g },
-  STRING: /%s/g,
-  INTEGER: /%i/g,
-  JSON: /%j/g,
-  OBJECT: /%o/g
-} as const;
-
-/**
- * Data format enumeration for test case classification
- * @constant {Object} DataFormat
- * @property {string} TABLE - Table format with headers and rows
- * @property {string} ARRAY - Simple array format
- * @property {string} OBJECT - Object format with named properties
- */
-const DataFormat = {
-  TABLE: 'table' as const,
-  ARRAY: 'array' as const,
-  OBJECT: 'object' as const
-};
-
-/**
- * Union type of all possible data formats
- * @typedef {'table'|'array'|'object'} DataFormatType
- */
-type DataFormatType = typeof DataFormat[keyof typeof DataFormat];
+import { PLACEHOLDERS, DataFormat } from './core/constants';
 
 /**
  * Detects the format of test case data by examining the first element
- * 
+ *
  * @function detectDataFormat
  * @param {TestSuite} testCases - Array of test cases to analyze
  * @returns {DataFormatType} The detected format type
- * 
+ * @throws {Error} If testCases is not an array
+ *
  * @description
  * Detection logic:
  * - TABLE: First item is array with string elements (headers)
  * - ARRAY: First item is array with non-string elements
  * - OBJECT: First item is an object
  * - Empty array defaults to OBJECT
- * 
+ *
  * @example
  * detectDataFormat([[1, 2], [3, 4]]) // returns 'array'
  * detectDataFormat([{a: 1}, {a: 2}]) // returns 'object'
  * detectDataFormat([['a', 'b'], [1, 2]]) // returns 'table'
  */
 export const detectDataFormat = (testCases: TestSuite): DataFormatType => {
+  if (!Array.isArray(testCases)) {
+    throw new Error('Test cases must be an array');
+  }
+
   if (testCases.length === 0) return DataFormat.OBJECT;
 
   const firstItem = testCases[0];
@@ -141,13 +89,13 @@ export const detectDataFormat = (testCases: TestSuite): DataFormatType => {
 
 /**
  * Formats test names with array-style placeholders
- * 
+ *
  * @function formatArrayTestName
  * @param {string} template - Test name template with placeholders
  * @param {Array} testCase - Array of test values
  * @param {number} index - Zero-based index of current test case
  * @returns {string} Formatted test name with placeholders replaced
- * 
+ *
  * @description
  * Supported placeholders:
  * - %# - Replaced with test case index
@@ -155,28 +103,43 @@ export const detectDataFormat = (testCases: TestSuite): DataFormatType => {
  * - %i - Replaced with integer representation of value
  * - %j - Replaced with JSON.stringify() of value
  * - %o - Replaced with String() representation of value
- * 
- * Note: All placeholders of the same type are replaced with the same value
- * in the order they appear. For fine-grained control, use object format.
- * 
+ *
+ * Placeholders are replaced in the order they appear, consuming values from
+ * the testCase array sequentially. For fine-grained control, use object format.
+ *
  * @example
  * formatArrayTestName('test %# with %s and %s', [10, 20], 0)
  * // returns 'test 0 with 10 and 20'
- * 
+ *
  * @example
  * formatArrayTestName('data: %j', [{a: 1}], 2)
  * // returns 'data: {"a":1}'
  */
 export const formatArrayTestName = (template: string, testCase: any[], index: number): string => {
+  // First replace index placeholder
   let result = template.replace(PLACEHOLDERS.INDEX.array, index.toString());
 
-  for (const value of testCase) {
-    // Replace only the first occurrence of each placeholder type
-    result = result
-      .replace(/%s/, String(value))
-      .replace(/%i/, String(value))
-      .replace(/%j/, JSON.stringify(value))
-      .replace(/%o/, String(value));
+  // Use single regex with capture group for efficient replacement
+  // This regex matches any of: %s, %i, %j, %o
+  const placeholderRegex = /%(s|i|j|o)/;
+  let valueIndex = 0;
+
+  // Replace placeholders one at a time, consuming values sequentially
+  while (placeholderRegex.test(result) && valueIndex < testCase.length) {
+    const value = testCase[valueIndex];
+    result = result.replace(placeholderRegex, (match, type) => {
+      switch (type) {
+        case 's':
+        case 'i':
+        case 'o':
+          return String(value);
+        case 'j':
+          return JSON.stringify(value);
+        default:
+          return match;
+      }
+    });
+    valueIndex++;
   }
 
   return result;
@@ -217,16 +180,18 @@ export const formatObjectTestName = (template: string, testCase: Record<string, 
 
 /**
  * Converts table format (headers + rows) to object format
- * 
+ *
  * @function normalizeTableFormat
  * @param {TableFormat} testCases - Table format data with headers and rows
  * @returns {Array<Object>} Array of objects with properties from headers
- * 
+ * @throws {Error} If testCases is empty, headers are missing, or headers contain non-strings
+ * @throws {Error} If any data row length doesn't match headers length
+ *
  * @description
  * Takes a table-style data structure and converts it to object format
  * for uniform processing. The first array contains header names, and
  * subsequent arrays contain data values.
- * 
+ *
  * @example
  * normalizeTableFormat([
  *   ['name', 'age'],
@@ -239,14 +204,36 @@ export const formatObjectTestName = (template: string, testCase: Record<string, 
  * // ]
  */
 export const normalizeTableFormat = (testCases: TableFormat): Record<string, any>[] => {
+  if (!testCases || testCases.length === 0) {
+    throw new Error('Table format requires at least a headers row');
+  }
+
   const [headers, ...rows] = testCases;
 
-  return rows.map(row =>
-    headers.reduce((obj, header, index) => ({
+  if (!Array.isArray(headers) || headers.length === 0) {
+    throw new Error('Table format headers must be a non-empty array');
+  }
+
+  if (!headers.every(h => typeof h === 'string')) {
+    throw new Error('Table format headers must all be strings');
+  }
+
+  return rows.map((row, rowIndex) => {
+    if (!Array.isArray(row)) {
+      throw new Error(`Table format row ${rowIndex} must be an array`);
+    }
+
+    if (row.length !== headers.length) {
+      throw new Error(
+        `Table format row ${rowIndex} has ${row.length} values but expected ${headers.length} (matching headers count)`
+      );
+    }
+
+    return headers.reduce((obj, header, index) => ({
       ...obj,
       [header]: row[index]
-    }), {} as Record<string, any>)
-  );
+    }), {} as Record<string, any>);
+  });
 };
 
 /**
@@ -332,26 +319,45 @@ const formatStrategies = {
  * }).where([{value: 1}, {value: 2}]);
  */
 const createParameterizedRunner = <T extends TestFunction | DescribeFunction>(
-  jasmineFn: (name: string, fn: any) => void,
+  jasmineFn: (name: string, fn: any) => any,
   isTestFunction: boolean
-) => (nameTemplate: string, testFn: T) => ({
-  /**
-   * Executes the parameterized tests with the provided test data
-   * 
-   * @method where
-   * @param {TestSuite|TableFormat} testCases - Test data in any supported format
-   * @returns {void}
-   * 
-   * @description
-   * Accepts test cases and generates individual Jasmine tests for each case.
-   * Automatically detects the data format and applies the appropriate strategy.
-   * 
-   * For array format with test functions (iit/fiit), arguments are spread.
-   * For all other cases, the complete test case is passed as a single argument.
-   */
-  where: (testCases: TestSuite | TableFormat) => {
-    const format = detectDataFormat(testCases as TestSuite);
-    const strategy = formatStrategies[format];
+) => (nameTemplate: string, testFn: T) => {
+  if (!nameTemplate || typeof nameTemplate !== 'string') {
+    throw new Error('Test name template must be a non-empty string');
+  }
+
+  if (!testFn || typeof testFn !== 'function') {
+    throw new Error('Test function must be a valid function');
+  }
+
+  return {
+    /**
+     * Executes the parameterized tests with the provided test data
+     *
+     * @method where
+     * @param {TestSuite|TableFormat} testCases - Test data in any supported format
+     * @returns {void}
+     * @throws {Error} If testCases is not an array or is empty
+     *
+     * @description
+     * Accepts test cases and generates individual Jasmine tests for each case.
+     * Automatically detects the data format and applies the appropriate strategy.
+     *
+     * For array format with test functions (iit/fiit), arguments are spread.
+     * For all other cases, the complete test case is passed as a single argument.
+     */
+    where: (testCases: TestSuite | TableFormat) => {
+      if (!Array.isArray(testCases)) {
+        throw new Error('Test cases must be an array');
+      }
+
+      // Allow empty arrays - simply don't execute any tests
+      if (testCases.length === 0) {
+        return;
+      }
+
+      const format = detectDataFormat(testCases as TestSuite);
+      const strategy = formatStrategies[format];
     
     /**
      * Executor function that bridges between our strategy and Jasmine
@@ -371,18 +377,19 @@ const createParameterizedRunner = <T extends TestFunction | DescribeFunction>(
      * - Preserves Jasmine's execution context (this binding)
      * - Supports both synchronous and asynchronous test functions
      */
-    const executor = (testName: string, testCase: any, index: number) => {
-      jasmineFn(testName, function(this: any) {
-        if (isTestFunction && format === DataFormat.ARRAY) {
-          return (testFn as TestFunction).apply(this, testCase);
-        }
-        return (testFn as any).call(this, testCase);
-      });
-    };
-    
-    strategy(nameTemplate, testCases as TestSuite, executor);
-  }
-});
+      const executor = (testName: string, testCase: any[] | Record<string, any>, index: number): void => {
+        jasmineFn(testName, function(this: unknown) {
+          if (isTestFunction && format === DataFormat.ARRAY) {
+            return (testFn as ArrayTestFunction).apply(this, testCase as any[]);
+          }
+          return (testFn as ObjectTestFunction | ObjectSuiteFunction).call(this, testCase as Record<string, any> | any[]);
+        });
+      };
+
+      strategy(nameTemplate, testCases as TestSuite, executor);
+    }
+  };
+};
 
 /**
  * Parameterized it function for individual tests
