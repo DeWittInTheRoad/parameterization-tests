@@ -213,6 +213,47 @@ describe('Parameterized Testing Utility - Integration', () => {
     });
 
     // ===========================================
+    // TEMPLATE/FORMAT VALIDATION
+    // ===========================================
+
+    describe('template/format mismatch validation', () => {
+        it('should throw error when using array placeholders with object data', () => {
+            expect(() => {
+                iit('test %s and %i', (testCase: any) => {
+                    expect(testCase).toBeDefined();
+                }).where([{a: 1, b: 2}]);
+            }).toThrowError(/Template\/format mismatch.*array-style placeholders.*object format/);
+        });
+
+        it('should throw error when using object placeholders with array data', () => {
+            expect(() => {
+                iit('test $a and $b', (a: any, b: any) => {
+                    expect(a).toBeDefined();
+                }).where([[1, 2], [3, 4]]);
+            }).toThrowError(/Template\/format mismatch.*object-style placeholders.*array format/);
+        });
+
+        it('should throw error when mixing array and object placeholders with object data', () => {
+            expect(() => {
+                iit('test %s and $property', (testCase: any) => {
+                    expect(testCase).toBeDefined();
+                }).where([{property: 'value'}]);
+            }).toThrowError(/Template\/format mismatch/);
+        });
+
+        it('should throw error when using array placeholders with table data', () => {
+            expect(() => {
+                iit('test %s', (testCase: any) => {
+                    expect(testCase).toBeDefined();
+                }).where([
+                    ['a', 'b'],
+                    [1, 2]
+                ]);
+            }).toThrowError(/Template\/format mismatch.*array-style placeholders.*table format/);
+        });
+    });
+
+    // ===========================================
     // ASYNC SUPPORT
     // ===========================================
 

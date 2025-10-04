@@ -88,6 +88,22 @@ export const createParameterizedRunner = <T extends TestFunction | DescribeFunct
 
       const format = detectDataFormat(testCases as TestSuite);
 
+      // Validate template placeholders match detected format
+      const hasArrayPlaceholders = /%(s|i|j|o)/.test(nameTemplate);
+      const hasObjectPlaceholders = /\$[a-zA-Z_$]/.test(nameTemplate);
+
+      if (hasArrayPlaceholders && (format === DataFormat.OBJECT || format === DataFormat.TABLE)) {
+        throw new Error(
+          `Template/format mismatch: Template "${nameTemplate}" contains array-style placeholders (%s, %i, %j, %o) but test data is ${format} format. Use object-style placeholders ($propertyName) instead.`
+        );
+      }
+
+      if (hasObjectPlaceholders && format === DataFormat.ARRAY) {
+        throw new Error(
+          `Template/format mismatch: Template "${nameTemplate}" contains object-style placeholders ($propertyName) but test data is array format. Use array-style placeholders (%s, %i, %j, %o) instead.`
+        );
+      }
+
       // Handle table format: normalize to objects then format as objects
       if (format === DataFormat.TABLE) {
         const normalizedCases = normalizeTableFormat(testCases as TableFormat);
