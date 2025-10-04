@@ -4,68 +4,36 @@
  *
  * ## ⚠️ TYPE SAFETY WARNING
  *
- * The types in this file provide **MINIMAL compile-time safety** due to TypeScript limitations:
- *
- * 1. `ArrayTestFunction = (...args: any[])` and `ObjectTestFunction = (testCase: Record<string, any>)`
- *    are INDISTINGUISHABLE at the type level. Both accept any arguments.
- *
- * 2. `TestFunction = ArrayTestFunction | ObjectTestFunction` provides ZERO additional safety.
- *    TypeScript cannot enforce that array format uses spread args vs object format uses single param.
- *
- * 3. These types exist for DOCUMENTATION purposes only - they communicate intent to developers
- *    but do NOT prevent misuse at compile time.
+ * These types provide **MINIMAL compile-time safety** due to TypeScript limitations.
+ * TypeScript cannot distinguish between:
+ * - Functions accepting spread args `(...args: any[])` vs single object `(obj: any)`
+ * - Array format vs object/table format at the type level
  *
  * Runtime validation (template/format mismatch checking) is the primary safety mechanism.
  * See parameterization-test.utils.ts for full Type Safety Limitations documentation.
  */
 
 /**
- * Type for test functions that receive individual spread arguments (array format)
+ * Test function for iit/fiit
  *
- * **⚠️ WARNING:** This is identical to ObjectTestFunction at the type level.
- * TypeScript cannot enforce that this is used with array format only.
+ * Accepts either:
+ * - Spread arguments for array format: `(a, b, c) => { ... }`
+ * - Single object for object/table format: `(testCase) => { ... }`
+ *
+ * **Note:** TypeScript cannot enforce the correct usage - runtime validation handles this.
  */
-export type ArrayTestFunction = (...args: any[]) => void | Promise<void>;
+export type TestFunction = (...args: any[]) => void | Promise<void>;
 
 /**
- * Type for test functions that receive a single object parameter (object/table format)
+ * Describe function for idescribe/fidescribe
  *
- * **⚠️ WARNING:** This is identical to ArrayTestFunction at the type level.
- * TypeScript cannot enforce that this is used with object/table format only.
- */
-export type ObjectTestFunction = (testCase: Record<string, any>) => void | Promise<void>;
-
-/**
- * Type definition for test functions used with iit and fiit
+ * Always receives the complete test case (never spread):
+ * - Array format: `(testCase: any[]) => { ... }`
+ * - Object/table format: `(testCase: Record<string, any>) => { ... }`
  *
- * **⚠️ WARNING:** This union type provides NO type safety - both members are identical.
- * It exists for documentation purposes only to communicate developer intent.
+ * **Note:** Different from TestFunction - describe functions don't spread array args.
  */
-export type TestFunction = ArrayTestFunction | ObjectTestFunction;
-
-/**
- * Type for describe functions that receive an array parameter (array format)
- *
- * **⚠️ WARNING:** `(testCase: any[])` and `(testCase: Record<string, any>)` are compatible.
- * TypeScript cannot enforce format-specific usage.
- */
-export type ArraySuiteFunction = (testCase: any[]) => void;
-
-/**
- * Type for describe functions that receive an object parameter (object/table format)
- *
- * **⚠️ WARNING:** `(testCase: Record<string, any>)` and `(testCase: any[])` are compatible.
- * TypeScript cannot enforce format-specific usage.
- */
-export type ObjectSuiteFunction = (testCase: Record<string, any>) => void;
-
-/**
- * Type definition for describe functions used with idescribe and fidescribe
- *
- * **⚠️ WARNING:** This union type provides LIMITED type safety.
- * It exists for documentation purposes to communicate developer intent.
- */
-export type DescribeFunction = ArraySuiteFunction | ObjectSuiteFunction;
+export type DescribeFunction = (testCase: any) => void;
 
 /**
  * Type definition for a single test case

@@ -4,9 +4,6 @@
  */
 
 import type {
-  ArrayTestFunction,
-  ObjectTestFunction,
-  ObjectSuiteFunction,
   TestFunction,
   DescribeFunction,
   TestSuite,
@@ -118,7 +115,7 @@ export const createParameterizedRunner = <T extends TestFunction | DescribeFunct
         normalizedCases.forEach((testCase, index) => {
           const testName = formatObjectTestName(nameTemplate, testCase, index);
           jasmineFn(testName, function(this: unknown) {
-            return (testFn as ObjectTestFunction | ObjectSuiteFunction).call(this, testCase);
+            return (testFn as TestFunction | DescribeFunction).call(this, testCase);
           });
         });
         return;
@@ -131,10 +128,10 @@ export const createParameterizedRunner = <T extends TestFunction | DescribeFunct
           jasmineFn(testName, function(this: unknown) {
             // Spread array elements as individual arguments (it/fit behavior)
             if (shouldSpreadArrayArgs) {
-              return (testFn as ArrayTestFunction).apply(this, testCase);
+              return (testFn as TestFunction).apply(this, testCase);
             }
             // Pass array as single argument (describe/fdescribe behavior)
-            return (testFn as ObjectSuiteFunction).call(this, testCase);
+            return (testFn as DescribeFunction).call(this, testCase);
           });
         });
         return;
@@ -149,7 +146,7 @@ export const createParameterizedRunner = <T extends TestFunction | DescribeFunct
       objectCases.forEach((testCase, index) => {
         const testName = formatObjectTestName(nameTemplate, testCase, index);
         jasmineFn(testName, function(this: unknown) {
-          return (testFn as ObjectTestFunction | ObjectSuiteFunction).call(this, testCase);
+          return (testFn as TestFunction | DescribeFunction).call(this, testCase);
         });
       });
     }
