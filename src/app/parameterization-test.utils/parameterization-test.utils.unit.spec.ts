@@ -9,6 +9,7 @@ import { detectDataFormat } from './formatters/detect-data-format';
 import { formatArrayTestName } from './formatters/format-array-test-name';
 import { formatObjectTestName } from './formatters/format-object-test-name';
 import { normalizeTableFormat } from './formatters/normalize-table-format';
+import { DataFormat } from './core/constants';
 
 describe('Parameterization Utility - Unit Tests', () => {
 
@@ -19,32 +20,32 @@ describe('Parameterization Utility - Unit Tests', () => {
     describe('detectDataFormat', () => {
         it('should detect array format when first item is array with non-string', () => {
             const result = detectDataFormat([[1, 2], [3, 4]]);
-            expect(result).toBe('array');
+            expect(result).toBe(DataFormat.ARRAY);
         });
 
         it('should detect object format when first item is object', () => {
             const result = detectDataFormat([{ a: 1 }, { b: 2 }]);
-            expect(result).toBe('object');
+            expect(result).toBe(DataFormat.OBJECT);
         });
 
         it('should detect table format when first item is array of strings', () => {
             const result = detectDataFormat([['name', 'age'], [1, 2]]);
-            expect(result).toBe('table');
+            expect(result).toBe(DataFormat.TABLE);
         });
 
         it('should default to object format for empty array', () => {
             const result = detectDataFormat([]);
-            expect(result).toBe('object');
+            expect(result).toBe(DataFormat.OBJECT);
         });
 
         it('should detect table format with single string header', () => {
             const result = detectDataFormat([['id'], [1], [2]]);
-            expect(result).toBe('table');
+            expect(result).toBe(DataFormat.TABLE);
         });
 
         it('should detect array format with mixed types', () => {
             const result = detectDataFormat([[1, 'text'], [2, 'more']]);
-            expect(result).toBe('array');
+            expect(result).toBe(DataFormat.ARRAY);
         });
     });
 
