@@ -13,11 +13,12 @@ import { DataFormat } from '../core/constants';
  * @param {TestSuite} testCases - Array of test cases to analyze
  * @returns {DataFormatType} The detected format type
  * @throws {Error} If testCases is not an array
+ * @throws {Error} If first item is an empty array (ambiguous format)
  *
  * @description
  * Detection logic:
- * - TABLE: First item is array with string elements (headers)
- * - ARRAY: First item is array with non-string elements
+ * - TABLE: First item is array where ALL elements are strings (headers)
+ * - ARRAY: First item is array with at least one non-string element
  * - OBJECT: First item is an object
  * - Empty array defaults to OBJECT
  *
@@ -38,7 +39,17 @@ export const detectDataFormat = (testCases: TestSuite): DataFormatType => {
   const firstItem = testCases[0];
 
   if (Array.isArray(firstItem)) {
-    return typeof firstItem[0] === 'string' ? DataFormat.TABLE : DataFormat.ARRAY;
+    // Empty array is ambiguous - cannot determine if it's table headers or array data
+    if (firstItem.length === 0) {
+      throw new Error(
+        'Cannot detect format: first array is empty. Table format requires non-empty headers, array format requires at least one value.'
+      );
+    }
+
+    // Check if ALL elements are strings (table headers), not just the first
+    return firstItem.every(h => typeof h === 'string')
+      ? DataFormat.TABLE
+      : DataFormat.ARRAY;
   }
 
   return DataFormat.OBJECT;

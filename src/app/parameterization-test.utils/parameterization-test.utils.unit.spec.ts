@@ -47,6 +47,33 @@ describe('Parameterization Utility - Unit Tests', () => {
             const result = detectDataFormat([[1, 'text'], [2, 'more']]);
             expect(result).toBe(DataFormat.ARRAY);
         });
+
+        it('should throw error for empty first array (ambiguous format)', () => {
+            expect(() => detectDataFormat([[]])).toThrowError(
+                'Cannot detect format: first array is empty'
+            );
+        });
+
+        it('should detect array format when first item contains null', () => {
+            const result = detectDataFormat([[null, 'value'], [1, 2]]);
+            expect(result).toBe(DataFormat.ARRAY);
+        });
+
+        it('should detect array format when first item contains undefined', () => {
+            const result = detectDataFormat([[undefined, 'name'], [1, 2]]);
+            expect(result).toBe(DataFormat.ARRAY);
+        });
+
+        it('should detect array format when headers have mixed string and non-string', () => {
+            const result = detectDataFormat([['name', null, 'age'], [1, 2, 3]]);
+            expect(result).toBe(DataFormat.ARRAY);
+        });
+
+        it('should require ALL elements to be strings for table format', () => {
+            // First element is undefined, so should be ARRAY not TABLE
+            const result = detectDataFormat([[undefined, 'name', 'age'], [1, 2, 3]]);
+            expect(result).toBe(DataFormat.ARRAY);
+        });
     });
 
     // ===========================================
