@@ -13,8 +13,12 @@ import type {
   TableFormat
 } from './types';
 import { DataFormat } from './constants';
-import { detectDataFormat } from '../formatters';
-import { formatStrategies } from '../strategies/format-strategies';
+import {
+  detectDataFormat,
+  formatArrayTestName,
+  formatObjectTestName,
+  normalizeTableFormat
+} from '../formatters';
 
 /**
  * Generic parameterized test runner factory
@@ -77,36 +81,42 @@ export const createParameterizedRunner = <T extends TestFunction | DescribeFunct
       }
 
       const format = detectDataFormat(testCases as TestSuite);
-      const strategy = formatStrategies[format];
 
-      /**
-       * Executor function that bridges between our strategy and Jasmine
-       *
-       * @function executor
-       * @param {string} testName - Formatted test name
-       * @param {any} testCase - Test case data
-       * @param {number} index - Test case index
-       *
-       * @description
-       * Creates a Jasmine test with the formatted name and wraps the test function
-       * to preserve context and handle argument passing correctly.
-       *
-       * Critical behavior:
-       * - Array format + test functions: Spreads array as individual arguments
-       * - All other cases: Passes complete test case as single argument
-       * - Preserves Jasmine's execution context (this binding)
-       * - Supports both synchronous and asynchronous test functions
-       */
-      const executor = (testName: string, testCase: any[] | Record<string, any>, index: number): void => {
-        jasmineFn(testName, function(this: unknown) {
-          if (isTestFunction && format === DataFormat.ARRAY) {
-            return (testFn as ArrayTestFunction).apply(this, testCase as any[]);
-          }
-          return (testFn as ObjectTestFunction | ObjectSuiteFunction).call(this, testCase as Record<string, any> | any[]);
+      // Handle table format: normalize to objects then format as objects
+      if (format === DataFormat.TABLE) {
+        const normalizedCases = normalizeTableFormat(testCases as TableFormat);
+        normalizedCases.forEach((testCase, index) => {
+          const testName = formatObjectTestName(nameTemplate, testCase, index);
+          jasmineFn(testName, function(this: unknown) {
+            return (testFn as ObjectTestFunction | ObjectSuiteFunction).call(this, testCase);
+          });
         });
-      };
+        return;
+      }
 
-      strategy(nameTemplate, testCases as TestSuite, executor);
+      // Handle array format
+      if (format === DataFormat.ARRAY) {
+        (testCases as any[][]).forEach((testCase, index) => {
+          const testName = formatArrayTestName(nameTemplate, testCase, index);
+          jasmineFn(testName, function(this: unknown) {
+            // For test functions (iit/fiit), spread array as individual arguments
+            if (isTestFunction) {
+              return (testFn as ArrayTestFunction).apply(this, testCase);
+            }
+            // For describe functions (idescribe/fidescribe), pass array as-is
+            return (testFn as ObjectSuiteFunction).call(this, testCase);
+          });
+        });
+        return;
+      }
+
+      // Handle object format
+      (testCases as Record<string, any>[]).forEach((testCase, index) => {
+        const testName = formatObjectTestName(nameTemplate, testCase, index);
+        jasmineFn(testName, function(this: unknown) {
+          return (testFn as ObjectTestFunction | ObjectSuiteFunction).call(this, testCase);
+        });
+      });
     }
   };
 };

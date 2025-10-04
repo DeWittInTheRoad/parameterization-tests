@@ -36,16 +36,15 @@ import { PLACEHOLDERS } from '../core/constants';
 export const formatArrayTestName = (template: string, testCase: any[], index: number): string => {
   // First replace index placeholder
   let result = template.replace(PLACEHOLDERS.INDEX.array, index.toString());
-
-  // Use single regex with capture group for efficient replacement
-  // This regex matches any of: %s, %i, %j, %o
-  const placeholderRegex = /%(s|i|j|o)/;
   let valueIndex = 0;
 
   // Replace placeholders one at a time, consuming values sequentially
-  while (placeholderRegex.test(result) && valueIndex < testCase.length) {
-    const value = testCase[valueIndex];
-    result = result.replace(placeholderRegex, (match, type) => {
+  // Don't use .test() - it moves the lastIndex pointer causing every other match to be skipped
+  while (valueIndex < testCase.length && result.includes('%')) {
+    const value = testCase[valueIndex++];
+
+    // Replace first occurrence only
+    result = result.replace(/%(s|i|j|o)/, (match, type) => {
       switch (type) {
         case 's':
         case 'i':
@@ -57,7 +56,6 @@ export const formatArrayTestName = (template: string, testCase: any[], index: nu
           return match;
       }
     });
-    valueIndex++;
   }
 
   return result;
