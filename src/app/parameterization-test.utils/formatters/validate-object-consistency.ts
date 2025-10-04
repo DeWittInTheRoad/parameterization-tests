@@ -45,7 +45,13 @@ function generateSuggestions(
 
   // Suggest typo fixes for unexpected keys
   for (const unexpectedKey of unexpected) {
+    // Skip extremely long property names (unlikely to be simple typos, prevents worst-case performance)
+    if (unexpectedKey.length > 50) continue;
+
     for (const missingKey of missing) {
+      // Skip extremely long property names
+      if (missingKey.length > 50) continue;
+
       const distance = levenshteinDistance(unexpectedKey, missingKey);
       const maxLen = Math.max(unexpectedKey.length, missingKey.length);
       const similarity = 1 - distance / maxLen;
