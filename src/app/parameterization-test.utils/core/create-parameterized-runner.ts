@@ -19,6 +19,7 @@ import {
   formatObjectTestName,
   normalizeTableFormat
 } from '../formatters';
+import { validateObjectConsistency } from '../formatters/validate-object-consistency';
 
 /**
  * Generic parameterized test runner factory
@@ -113,6 +114,10 @@ export const createParameterizedRunner = <T extends TestFunction | DescribeFunct
       // Handle table format: normalize to objects then format as objects
       if (format === DataFormat.TABLE) {
         const normalizedCases = normalizeTableFormat(testCases as TableFormat);
+
+        // Validate object key consistency (table rows should have uniform structure)
+        validateObjectConsistency(normalizedCases, nameTemplate);
+
         normalizedCases.forEach((testCase, index) => {
           const testName = formatObjectTestName(nameTemplate, testCase, index);
           jasmineFn(testName, function(this: unknown) {
@@ -139,7 +144,12 @@ export const createParameterizedRunner = <T extends TestFunction | DescribeFunct
       }
 
       // Handle object format
-      (testCases as Record<string, any>[]).forEach((testCase, index) => {
+      const objectCases = testCases as Record<string, any>[];
+
+      // Validate object key consistency
+      validateObjectConsistency(objectCases, nameTemplate);
+
+      objectCases.forEach((testCase, index) => {
         const testName = formatObjectTestName(nameTemplate, testCase, index);
         jasmineFn(testName, function(this: unknown) {
           return (testFn as ObjectTestFunction | ObjectSuiteFunction).call(this, testCase);
