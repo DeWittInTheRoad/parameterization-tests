@@ -60,7 +60,16 @@ export const formatArrayTestName = (template: string, testCase: any[], index: nu
           return String(value);
         case 'o':
         case 'j':
-          return JSON.stringify(value);
+          // Handle BigInt which JSON.stringify cannot serialize
+          if (typeof value === 'bigint') {
+            return String(value);
+          }
+          try {
+            return JSON.stringify(value);
+          } catch (e) {
+            // Fallback to String for circular references or other errors
+            return String(value);
+          }
         default:
           return match;
       }
@@ -70,9 +79,11 @@ export const formatArrayTestName = (template: string, testCase: any[], index: nu
   // Warn about unused values - this often indicates a mistake in the template
   if (valueIndex < testCase.length) {
     const unusedValues = testCase.slice(valueIndex);
+    // Safely stringify values (handle BigInt)
+    const valueStr = unusedValues.map(v => typeof v === 'bigint' ? String(v) : v);
     console.warn(
       `formatArrayTestName: Template "${template}" has ${testCase.length} values but only ${valueIndex} placeholders. ` +
-      `Unused values: ${JSON.stringify(unusedValues)}`
+      `Unused values: ${JSON.stringify(valueStr)}`
     );
   }
 

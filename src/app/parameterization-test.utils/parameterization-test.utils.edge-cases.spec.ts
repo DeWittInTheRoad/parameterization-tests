@@ -212,14 +212,14 @@ describe('Edge Cases: Special JavaScript Values', () => {
       [-456n, -456n],
     ]);
 
-    it('should throw when using %j with BigInt (JSON.stringify limitation)', () => {
-      expect(() => {
-        iit('value: %j', (value: bigint) => {
-          expect(value).toBeTruthy();
-        }).where([
-          [123n],
-        ]);
-      }).toThrowError(/BigInt/i);
+    it('should handle %o with BigInt (fallback to String)', () => {
+      // Now that we handle BigInt specially, this should work
+      iit('value: %o', (value: bigint) => {
+        expect(typeof value).toBe('bigint');
+        expect(value).toBe(123n);
+      }).where([
+        [123n],
+      ]);
     });
 
     iit('should handle very large BigInt values', (value: bigint) => {
@@ -346,11 +346,11 @@ describe('Edge Cases: Special JavaScript Values', () => {
       });
 
       it('should have correct year', () => {
-        expect(testCase.date.getFullYear()).toBe(2024);
+        expect(testCase.date.getUTCFullYear()).toBe(2024);
       });
     }).where([
-      { date: new Date('2024-01-01') },
-      { date: new Date('2024-06-15') },
+      { date: new Date('2024-01-01T00:00:00Z') },
+      { date: new Date('2024-06-15T00:00:00Z') },
     ]);
 
     idescribe('BigInt suite: $value', (testCase: any) => {
