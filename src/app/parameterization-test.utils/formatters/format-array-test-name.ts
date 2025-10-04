@@ -70,5 +70,14 @@ export const formatArrayTestName = (template: string, testCase: any[], index: nu
     });
   }
 
+  // Warn about unused values - this often indicates a mistake in the template
+  if (valueIndex < testCase.length) {
+    const unusedValues = testCase.slice(valueIndex);
+    console.warn(
+      `formatArrayTestName: Template "${template}" has ${testCase.length} values but only ${valueIndex} placeholders. ` +
+      `Unused values: ${JSON.stringify(unusedValues)}`
+    );
+  }
+
   return result;
 };

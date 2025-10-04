@@ -133,6 +133,22 @@ describe('Parameterization Utility - Unit Tests', () => {
             const result = formatArrayTestName('test %s', [], 0);
             expect(result).toBe('test %s');
         });
+
+        it('should warn when more values than placeholders (data loss)', () => {
+            spyOn(console, 'warn');
+            const result = formatArrayTestName('test %s', [1, 2, 3, 4, 5], 0);
+            expect(result).toBe('test 1');
+            expect(console.warn).toHaveBeenCalledWith(
+                jasmine.stringMatching(/has 5 values but only 1 placeholders.*Unused values.*\[2,3,4,5\]/)
+            );
+        });
+
+        it('should not warn when values match placeholders', () => {
+            spyOn(console, 'warn');
+            const result = formatArrayTestName('%s %s %s', [1, 2, 3], 0);
+            expect(result).toBe('1 2 3');
+            expect(console.warn).not.toHaveBeenCalled();
+        });
     });
 
     // ===========================================
