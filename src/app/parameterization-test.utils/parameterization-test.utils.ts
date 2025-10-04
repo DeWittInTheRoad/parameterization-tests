@@ -6,6 +6,23 @@
  * to run the same test logic against multiple sets of test data. Supports three data formats:
  * array format, object format, and table format.
  *
+ * ## Public API
+ *
+ * **Primary Functions:**
+ * - `iit`, `idescribe` - Parameterized test/suite functions
+ * - `fiit`, `fidescribe` - Focused (run only these)
+ * - `xiit`, `xidescribe` - Excluded (skip these)
+ *
+ * **Utility Functions (Advanced):**
+ * - `detectDataFormat` - Determine if test data is array/object/table format
+ * - `formatArrayTestName` - Format test names with %s, %i, %j, %o placeholders
+ * - `formatObjectTestName` - Format test names with $property placeholders
+ * - `normalizeTableFormat` - Convert table format to object format
+ * - `DataFormat` - Constants for format types (ARRAY, OBJECT, TABLE)
+ *
+ * These utilities are exported for advanced use cases like custom test runners
+ * or test name generation.
+ *
  * ## Type Safety Limitations
  *
  * This utility provides runtime flexibility at the cost of some compile-time type safety:
@@ -62,6 +79,13 @@ import type { TestFunction, DescribeFunction } from './core/types';
 
 // Import core utilities
 import { createParameterizedRunner } from './core/create-parameterized-runner';
+
+// Re-export utility functions for advanced use cases
+export { detectDataFormat } from './formatters/detect-data-format';
+export { formatArrayTestName } from './formatters/format-array-test-name';
+export { formatObjectTestName } from './formatters/format-object-test-name';
+export { normalizeTableFormat } from './formatters/normalize-table-format';
+export { DataFormat } from './core/constants';
 
 /**
  * Parameterized it function for individual tests
