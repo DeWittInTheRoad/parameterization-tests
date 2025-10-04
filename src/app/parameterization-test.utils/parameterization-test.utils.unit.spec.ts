@@ -64,6 +64,24 @@ describe('Parameterization Utility - Unit Tests', () => {
             expect(result).toBe('case 5: test');
         });
 
+        it('should NOT collide with user property named "index"', () => {
+            // User has 'index' property with value 100, but $index should use test case index (0)
+            const result = formatObjectTestName('test $index: value=$myIndex', { myIndex: 100 }, 0);
+            expect(result).toBe('test 0: value=100');
+        });
+
+        it('should handle both $index and user "index" property in same template', () => {
+            // $index = test case index (2)
+            // $userIndex = user's property value (999)
+            const result = formatObjectTestName('case $index has userIndex=$userIndex', { userIndex: 999 }, 2);
+            expect(result).toBe('case 2 has userIndex=999');
+        });
+
+        it('should handle $index multiple times in template', () => {
+            const result = formatObjectTestName('[$index] test $index: $name', { name: 'test' }, 3);
+            expect(result).toBe('[3] test 3: test');
+        });
+
         it('should handle same property used multiple times', () => {
             const result = formatObjectTestName('$name is $name', { name: 'Bob' }, 0);
             expect(result).toBe('Bob is Bob');
