@@ -22,7 +22,7 @@ describe('Parameterized Testing Utility - Integration', () => {
             { a: 10, b: 20, expected: 30 }
         ]);
 
-        iit('test case $#: $name should be $status', (testCase: any) => {
+        iit('test case $index: $name should be $status', (testCase: any) => {
             expect(testCase.name).toBeDefined();
             expect(testCase.status).toBeDefined();
         }).where([
@@ -56,7 +56,7 @@ describe('Parameterized Testing Utility - Integration', () => {
             [10, 20, 30]
         ]);
 
-        iit('test $#: $name is $status', (testCase: any) => {
+        iit('test $index: $name is $status', (testCase: any) => {
             expect(testCase.name).toBeDefined();
             expect(testCase.status).toBeDefined();
         }).where([

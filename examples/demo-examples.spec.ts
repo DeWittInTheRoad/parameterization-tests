@@ -36,7 +36,7 @@ describe('Parameterized Testing - Feature Demonstration', () => {
         // "should add 1 and 4 to get 5"
         // "should add 10 and 20 to get 30"
 
-        iit('test case $#: $name', (testCase: any) => {
+        iit('test case $index: $name', (testCase: any) => {
             expect(testCase.name).toBeDefined();
         }).where([
             { name: 'first' },
@@ -92,7 +92,7 @@ describe('Parameterized Testing - Feature Demonstration', () => {
         // "should add 1 and 4 to get 5"
         // "should add 10 and 20 to get 30"
 
-        iit('test $#: $name is $status', (testCase: any) => {
+        iit('test $index: $name is $status', (testCase: any) => {
             expect(testCase.name).toBeDefined();
             expect(testCase.status).toBeDefined();
         }).where([

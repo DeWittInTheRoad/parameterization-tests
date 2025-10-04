@@ -4,16 +4,9 @@
  */
 
 /**
- * Placeholder pattern for test name formatting
- *
- * Index placeholder for object/table format: `$#`
- */
-export const INDEX_PLACEHOLDER = /\$#/g;
-
-/**
  * Supported data format types
  *
- * - `TABLE`: Table format with headers and rows
+ * - `TABLE`: Table format with headers and rows (converted to objects)
  * - `OBJECT`: Object format with named properties
  */
 export const DataFormat = {

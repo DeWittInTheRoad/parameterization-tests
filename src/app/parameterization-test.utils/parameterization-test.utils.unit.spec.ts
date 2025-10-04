@@ -62,8 +62,8 @@ describe('Parameterization Utility - Unit Tests', () => {
             expect(result).toBe('1 + 2 = 3');
         });
 
-        it('should replace $# placeholder with index', () => {
-            const result = formatObjectTestName('case $#: $name', { name: 'test' }, 5);
+        it('should replace $index placeholder with index', () => {
+            const result = formatObjectTestName('case $index: $name', { name: 'test' }, 5);
             expect(result).toBe('case 5: test');
         });
 
@@ -242,7 +242,7 @@ describe('Parameterization Utility - Unit Tests', () => {
         });
 
         it('formatObjectTestName with negative index', () => {
-            const result = formatObjectTestName('case $#', {}, -1);
+            const result = formatObjectTestName('case $index', {}, -1);
             expect(result).toBe('case -1');
         });
     });

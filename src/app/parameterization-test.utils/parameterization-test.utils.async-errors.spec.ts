@@ -18,7 +18,7 @@ describe('Async Error Handling - Error Surface Validation', () => {
         // This test demonstrates that async errors are properly caught
         // The test SHOULD fail, proving error propagation works
         xit('async throw is caught by Jasmine (this test should fail)', async () => {
-            await iit('case $#: value $value', async (testCase: any) => {
+            await iit('case $index: value $value', async (testCase: any) => {
                 await Promise.resolve(); // Simulate async work
                 throw new Error(`Intentional error for value ${testCase.value}`);
             }).where([{value: 1}, {value: 2}, {value: 3}]);
@@ -26,7 +26,7 @@ describe('Async Error Handling - Error Surface Validation', () => {
 
         // This test proves rejected promises are surfaced
         xit('rejected promise is caught by Jasmine (this test should fail)', async () => {
-            await iit('case $#: value $value', async (testCase: any) => {
+            await iit('case $index: value $value', async (testCase: any) => {
                 return Promise.reject(new Error(`Rejection for value ${testCase.value}`));
             }).where([{value: 1}, {value: 2}]);
         });

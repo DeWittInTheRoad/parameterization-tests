@@ -3,14 +3,15 @@
  * @module parameterized-testing/formatters/format-object-test-name
  */
 
-import { INDEX_PLACEHOLDER } from '../core/constants';
-
 /**
  * Formats test names with object-style placeholders
  *
  * Supported placeholders:
- * - `$#` - Replaced with test case index
+ * - `$index` - Zero-based index of current test case
  * - `$propertyName` - Replaced with value of testCase.propertyName
+ *
+ * The `$index` placeholder is treated as a special property automatically
+ * added to the test case object for formatting purposes only.
  *
  * Each property can be referenced multiple times in the template.
  *
@@ -21,19 +22,20 @@ import { INDEX_PLACEHOLDER } from '../core/constants';
  *
  * @example
  * ```ts
- * formatObjectTestName('test $# with $a and $b', {a: 10, b: 20}, 0)
- * // returns 'test 0 with 10 and 20'
+ * formatObjectTestName('test $index: $a + $b', {a: 10, b: 20}, 0)
+ * // returns 'test 0: 10 + 20'
  *
  * formatObjectTestName('$name is $status', {name: 'user', status: 'active'}, 1)
  * // returns 'user is active'
  * ```
  */
 export const formatObjectTestName = (template: string, testCase: Record<string, any>, index: number): string => {
-  const withIndex = template.replace(INDEX_PLACEHOLDER, index.toString());
+  // Add index as a virtual property to make $index work like any other placeholder
+  const testCaseWithIndex: Record<string, any> = { ...testCase, index };
 
-  // Single-pass replacement: O(n) instead of O(n²)
-  // Matches $propertyName where propertyName can contain special chars (escaped in property lookup)
-  return withIndex.replace(/\$([a-zA-Z_$][\w.$[\]()*+?^|\\-]*)/g, (match, key) => {
-    return key in testCase ? String(testCase[key]) : match;
+  // Single-pass replacement: O(n)
+  // Matches $propertyName where propertyName can contain special chars
+  return template.replace(/\$([a-zA-Z_$][\w.$[\]()*+?^|\\-]*)/g, (match, key) => {
+    return key in testCaseWithIndex ? String(testCaseWithIndex[key]) : match;
   });
 };

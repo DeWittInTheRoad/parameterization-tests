@@ -116,11 +116,11 @@ describe('Parameterized Testing Utility - Mock Integration', () => {
             expect(mockJasmineFn).not.toHaveBeenCalled();
         });
 
-        it('should handle index placeholder ($#)', () => {
+        it('should handle index placeholder ($index)', () => {
             const mockJasmineFn = jasmine.createSpy('jasmineFn');
             const runner = createParameterizedRunner(mockJasmineFn);
 
-            runner('case $#: value $a', () => {}).where([{a: 1}, {a: 2}]);
+            runner('case $index: value $a', () => {}).where([{a: 1}, {a: 2}]);
 
             expect(mockJasmineFn.calls.argsFor(0)[0]).toBe('case 0: value 1');
             expect(mockJasmineFn.calls.argsFor(1)[0]).toBe('case 1: value 2');
