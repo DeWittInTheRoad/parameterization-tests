@@ -7,28 +7,19 @@ import { iit, idescribe } from './parameterization-test.utils';
 
 describe('Edge Cases: Special JavaScript Values', () => {
   describe('Circular Objects', () => {
-    it('should handle circular references in object format with JSON.stringify error', () => {
-      const circular: any = { name: 'circular' };
-      circular.self = circular;
+    iit('should handle circular references in object format: $name', (testCase: any) => {
+      // String() handles circular refs fine for test names
+      expect(testCase.self).toBe(testCase);
+    }).where([
+      { name: 'circular', self: (() => { const c: any = { name: 'circular' }; c.self = c; return c; })() }
+    ]);
 
-      // String() handles circular refs fine, JSON.stringify() throws
-      expect(() => {
-        iit('test $name', (testCase: any) => {
-          expect(testCase.self).toBe(testCase);
-        }).where([circular]);
-      }).not.toThrow();
-    });
-
-    it('should handle circular references in array format with %s (String)', () => {
-      const circular: any = { name: 'circular' };
-      circular.self = circular;
-
-      expect(() => {
-        iit('test %s', (obj: any) => {
-          expect(obj.self).toBe(obj);
-        }).where([[circular]]);
-      }).not.toThrow();
-    });
+    iit('should handle circular references in array format with %s', (obj: any) => {
+      // String() handles circular refs fine
+      expect(obj.self).toBe(obj);
+    }).where([
+      [(() => { const c: any = { name: 'circular' }; c.self = c; return c; })()]
+    ]);
 
     it('should throw when using %j (JSON.stringify) with circular refs', () => {
       const circular: any = { name: 'circular' };
@@ -41,17 +32,14 @@ describe('Edge Cases: Special JavaScript Values', () => {
       }).toThrowError(/circular|Converting circular structure/i);
     });
 
-    it('should handle nested circular references', () => {
+    iit('test $name (nested circular)', (testCase: any) => {
+      expect(testCase.parent.child).toBe(testCase);
+    }).where([(() => {
       const parent: any = { name: 'parent' };
       const child: any = { name: 'child', parent };
       parent.child = child;
-
-      expect(() => {
-        iit('test $name', (testCase: any) => {
-          expect(testCase.parent.child).toBe(testCase);
-        }).where([child]);
-      }).not.toThrow();
-    });
+      return child;
+    })()]);
   });
 
   describe('Undefined Values', () => {
@@ -77,24 +65,20 @@ describe('Edge Cases: Special JavaScript Values', () => {
       expect(value).toBeUndefined();
     }).where([[undefined]]);
 
-    it('should handle undefined in table format', () => {
-      iit('value: $value', (testCase: any) => {
-        expect(testCase.value).toBeUndefined();
-      }).where([
-        ['value'],
-        [undefined],
-      ]);
-    });
+    iit('value: $value (table format)', (testCase: any) => {
+      expect(testCase.value).toBeUndefined();
+    }).where([
+      ['value'],
+      [undefined],
+    ]);
 
-    it('should handle object with all undefined properties', () => {
-      iit('test $a $b $c', (testCase: any) => {
-        expect(testCase.a).toBeUndefined();
-        expect(testCase.b).toBeUndefined();
-        expect(testCase.c).toBeUndefined();
-      }).where([
-        { a: undefined, b: undefined, c: undefined },
-      ]);
-    });
+    iit('test $a $b $c (all undefined)', (testCase: any) => {
+      expect(testCase.a).toBeUndefined();
+      expect(testCase.b).toBeUndefined();
+      expect(testCase.c).toBeUndefined();
+    }).where([
+      { a: undefined, b: undefined, c: undefined },
+    ]);
   });
 
   describe('Null Values', () => {
@@ -118,26 +102,16 @@ describe('Edge Cases: Special JavaScript Values', () => {
       [null],
     ]);
 
-    it('should handle mixed null and undefined in same test suite', () => {
-      const results: any[] = [];
-
-      iit('value: %s', (value: any) => {
-        results.push(value);
-      }).where([
-        [null],
-        [undefined],
-        [0],
-        [false],
-        [''],
-      ]);
-
-      // All falsy values should be tested
-      expect(results).toContain(null);
-      expect(results).toContain(undefined);
-      expect(results).toContain(0);
-      expect(results).toContain(false);
-      expect(results).toContain('');
-    });
+    iit('should handle falsy value: %s', (value: any) => {
+      // All falsy values should be tested: null, undefined, 0, false, ''
+      expect([null, undefined, 0, false, '']).toContain(value);
+    }).where([
+      [null],
+      [undefined],
+      [0],
+      [false],
+      [''],
+    ]);
   });
 
   describe('Date Objects', () => {
@@ -169,27 +143,21 @@ describe('Edge Cases: Special JavaScript Values', () => {
       [date2],
     ]);
 
-    it('should handle Date in table format', () => {
-      iit('date: $date, year: $year', (testCase: any) => {
-        expect(testCase.date).toBeInstanceOf(Date);
-        expect(testCase.date.getFullYear()).toBe(testCase.year);
-      }).where([
-        ['date', 'year'],
-        [date1, 2024],
-        [date2, 2024],
-      ]);
-    });
+    iit('date: $date, year: $year (table format)', (testCase: any) => {
+      expect(testCase.date).toBeInstanceOf(Date);
+      expect(testCase.date.getFullYear()).toBe(testCase.year);
+    }).where([
+      ['date', 'year'],
+      [date1, 2024],
+      [date2, 2024],
+    ]);
 
-    it('should handle invalid Date objects', () => {
-      const invalidDate = new Date('invalid');
-
-      iit('invalid date: %s', (date: Date) => {
-        expect(date).toBeInstanceOf(Date);
-        expect(isNaN(date.getTime())).toBe(true);
-      }).where([
-        [invalidDate],
-      ]);
-    });
+    iit('invalid date: %s', (date: Date) => {
+      expect(date).toBeInstanceOf(Date);
+      expect(isNaN(date.getTime())).toBe(true);
+    }).where([
+      [new Date('invalid')],
+    ]);
   });
 
   describe('BigInt Values', () => {
@@ -212,15 +180,13 @@ describe('Edge Cases: Special JavaScript Values', () => {
       [-456n, -456n],
     ]);
 
-    it('should handle %o with BigInt (fallback to String)', () => {
+    iit('value: %o (BigInt fallback to String)', (value: bigint) => {
       // Now that we handle BigInt specially, this should work
-      iit('value: %o', (value: bigint) => {
-        expect(typeof value).toBe('bigint');
-        expect(value).toBe(123n);
-      }).where([
-        [123n],
-      ]);
-    });
+      expect(typeof value).toBe('bigint');
+      expect(value).toBe(123n);
+    }).where([
+      [123n],
+    ]);
 
     iit('should handle very large BigInt values', (value: bigint) => {
       expect(typeof value).toBe('bigint');
@@ -230,113 +196,87 @@ describe('Edge Cases: Special JavaScript Values', () => {
       [BigInt('99999999999999999999999999')],
     ]);
 
-    it('should handle BigInt in table format', () => {
-      iit('value: $value', (testCase: any) => {
-        expect(typeof testCase.value).toBe('bigint');
-      }).where([
-        ['value'],
-        [123n],
-        [456n],
-      ]);
-    });
+    iit('value: $value (BigInt table format)', (testCase: any) => {
+      expect(typeof testCase.value).toBe('bigint');
+    }).where([
+      ['value'],
+      [123n],
+      [456n],
+    ]);
   });
 
   describe('Long Arrays', () => {
-    it('should handle arrays with 100 elements', () => {
-      const longArray = Array.from({ length: 100 }, (_, i) => i);
+    iit('index %#: value %s (100 elements)', (value: number) => {
+      expect(typeof value).toBe('number');
+      expect(value).toBeGreaterThanOrEqual(0);
+      expect(value).toBeLessThan(100);
+    }).where(Array.from({ length: 100 }, (_, i) => [i]));
 
-      iit('index %#: value %s', (value: number) => {
-        expect(typeof value).toBe('number');
-        expect(value).toBeGreaterThanOrEqual(0);
-        expect(value).toBeLessThan(100);
-      }).where(longArray.map(v => [v]));
-    });
+    iit('test $index (1000 elements)', (testCase: any) => {
+      expect(testCase.value).toBe(testCase.index * 2);
+    }).where(Array.from({ length: 1000 }, (_, i) => ({ index: i, value: i * 2 })));
 
-    it('should handle arrays with 1000 elements', () => {
-      const veryLongArray = Array.from({ length: 1000 }, (_, i) => ({ index: i, value: i * 2 }));
-
-      iit('test $index', (testCase: any) => {
-        expect(testCase.value).toBe(testCase.index * 2);
-      }).where(veryLongArray);
-    });
-
-    it('should handle table format with many rows', () => {
-      const tableData: any[] = [
-        ['a', 'b', 'result']
-      ];
-
+    iit('$a + $b = $result (table with 100 rows)', (testCase: any) => {
+      expect(testCase.a + testCase.b).toBe(testCase.result);
+    }).where((() => {
+      const data: any[] = [['a', 'b', 'result']];
       for (let i = 0; i < 100; i++) {
-        tableData.push([i, i + 1, i + i + 1]);
+        data.push([i, i + 1, i + i + 1]);
       }
+      return data;
+    })());
 
-      iit('$a + $b = $result', (testCase: any) => {
-        expect(testCase.a + testCase.b).toBe(testCase.result);
-      }).where(tableData);
-    });
-
-    it('should handle arrays with nested long arrays', () => {
-      const nestedLongArrays = Array.from({ length: 10 }, (_, i) => ({
-        index: i,
-        values: Array.from({ length: 100 }, (_, j) => j)
-      }));
-
-      iit('nested array at index $index', (testCase: any) => {
-        expect(testCase.values.length).toBe(100);
-        expect(testCase.values[99]).toBe(99);
-      }).where(nestedLongArrays);
-    });
+    iit('nested array at index $index', (testCase: any) => {
+      expect(testCase.values.length).toBe(100);
+      expect(testCase.values[99]).toBe(99);
+    }).where(Array.from({ length: 10 }, (_, i) => ({
+      index: i,
+      values: Array.from({ length: 100 }, (_, j) => j)
+    })));
   });
 
   describe('Mixed Edge Cases', () => {
-    it('should handle object with Date, BigInt, null, undefined together', () => {
-      iit('mixed types: $name', (testCase: any) => {
-        if (testCase.name === 'date') {
-          expect(testCase.value).toBeInstanceOf(Date);
-        } else if (testCase.name === 'bigint') {
-          expect(typeof testCase.value).toBe('bigint');
-        } else if (testCase.name === 'null') {
-          expect(testCase.value).toBeNull();
-        } else if (testCase.name === 'undefined') {
-          expect(testCase.value).toBeUndefined();
-        }
-      }).where([
-        { name: 'date', value: new Date() },
-        { name: 'bigint', value: 123n },
-        { name: 'null', value: null },
-        { name: 'undefined', value: undefined },
-      ]);
-    });
+    iit('mixed types: $name', (testCase: any) => {
+      if (testCase.name === 'date') {
+        expect(testCase.value).toBeInstanceOf(Date);
+      } else if (testCase.name === 'bigint') {
+        expect(typeof testCase.value).toBe('bigint');
+      } else if (testCase.name === 'null') {
+        expect(testCase.value).toBeNull();
+      } else if (testCase.name === 'undefined') {
+        expect(testCase.value).toBeUndefined();
+      }
+    }).where([
+      { name: 'date', value: new Date() },
+      { name: 'bigint', value: 123n },
+      { name: 'null', value: null },
+      { name: 'undefined', value: undefined },
+    ]);
 
-    it('should handle empty arrays as test case values', () => {
-      iit('empty: $isEmpty', (testCase: any) => {
-        expect(Array.isArray(testCase.arr)).toBe(true);
-        expect(testCase.arr.length).toBe(0);
-      }).where([
-        { arr: [], isEmpty: true },
-      ]);
-    });
+    iit('empty: $isEmpty', (testCase: any) => {
+      expect(Array.isArray(testCase.arr)).toBe(true);
+      expect(testCase.arr.length).toBe(0);
+    }).where([
+      { arr: [], isEmpty: true },
+    ]);
 
-    it('should handle deeply nested objects with special values', () => {
-      const deepObject = {
-        level1: {
-          level2: {
-            level3: {
-              date: new Date(),
-              bigint: 123n,
-              null: null,
-              undefined: undefined,
-            }
+    iit('deep object test', (testCase: any) => {
+      expect(testCase.level1.level2.level3.date).toBeInstanceOf(Date);
+      expect(typeof testCase.level1.level2.level3.bigint).toBe('bigint');
+      expect(testCase.level1.level2.level3.null).toBeNull();
+      expect(testCase.level1.level2.level3.undefined).toBeUndefined();
+    }).where([{
+      level1: {
+        level2: {
+          level3: {
+            date: new Date(),
+            bigint: 123n,
+            null: null,
+            undefined: undefined,
           }
         }
-      };
-
-      iit('deep object test', (testCase: any) => {
-        expect(testCase.level1.level2.level3.date).toBeInstanceOf(Date);
-        expect(typeof testCase.level1.level2.level3.bigint).toBe('bigint');
-        expect(testCase.level1.level2.level3.null).toBeNull();
-        expect(testCase.level1.level2.level3.undefined).toBeUndefined();
-      }).where([deepObject]);
-    });
+      }
+    }]);
   });
 
   describe('idescribe with Edge Cases', () => {
