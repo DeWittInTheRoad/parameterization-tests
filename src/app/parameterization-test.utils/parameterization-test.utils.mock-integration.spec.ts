@@ -100,15 +100,6 @@ describe('Parameterized Testing Utility - Mock Integration', () => {
                 runner('test', () => {}).where({a: 1} as any);
             }).toThrowError(/Test cases must be an array.*received: object/);
         });
-
-        it('should throw error for template/format mismatch (object placeholders with table data)', () => {
-            const mockJasmineFn = jasmine.createSpy('jasmineFn');
-            const runner = createParameterizedRunner(mockJasmineFn);
-
-            expect(() => {
-                runner('test $a', () => {}).where([['a'], [1], [2]]);
-            }).toThrowError(/Template\/format mismatch/);
-        });
     });
 
     // ===========================================

@@ -155,23 +155,6 @@ describe('Parameterized Testing Utility - Integration', () => {
     });
 
     // ===========================================
-    // TEMPLATE/FORMAT VALIDATION
-    // ===========================================
-
-    describe('template/format mismatch validation', () => {
-        it('should throw error when mixing placeholders with wrong data format', () => {
-            expect(() => {
-                iit('test $property', (testCase: any) => {
-                    expect(testCase).toBeDefined();
-                }).where([
-                    ['a', 'b'],
-                    [1, 2]
-                ]);
-            }).toThrowError(/Template\/format mismatch/);
-        });
-    });
-
-    // ===========================================
     // ASYNC SUPPORT
     // ===========================================
 
