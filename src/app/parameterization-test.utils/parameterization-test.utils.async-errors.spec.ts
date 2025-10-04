@@ -18,17 +18,17 @@ describe('Async Error Handling - Error Surface Validation', () => {
         // This test demonstrates that async errors are properly caught
         // The test SHOULD fail, proving error propagation works
         xit('async throw is caught by Jasmine (this test should fail)', async () => {
-            await iit('case %#: value %s', async (value: number) => {
+            await iit('case $#: value $value', async (testCase: any) => {
                 await Promise.resolve(); // Simulate async work
-                throw new Error(`Intentional error for value ${value}`);
-            }).where([[1], [2], [3]]);
+                throw new Error(`Intentional error for value ${testCase.value}`);
+            }).where([{value: 1}, {value: 2}, {value: 3}]);
         });
 
         // This test proves rejected promises are surfaced
         xit('rejected promise is caught by Jasmine (this test should fail)', async () => {
-            await iit('case %#: value %s', async (value: number) => {
-                return Promise.reject(new Error(`Rejection for value ${value}`));
-            }).where([[1], [2]]);
+            await iit('case $#: value $value', async (testCase: any) => {
+                return Promise.reject(new Error(`Rejection for value ${testCase.value}`));
+            }).where([{value: 1}, {value: 2}]);
         });
     });
 
@@ -37,11 +37,6 @@ describe('Async Error Handling - Error Surface Validation', () => {
     // ===========================================
 
     describe('successful async operations', () => {
-
-        iit('async test resolves correctly for value %s', async (value: number) => {
-            const result = await Promise.resolve(value * 2);
-            expect(result).toBe(value * 2);
-        }).where([[1], [2], [3]]);
 
         iit('multiple awaits work correctly for $input', async (testCase: any) => {
             const step1 = await Promise.resolve(testCase.input);
@@ -54,12 +49,12 @@ describe('Async Error Handling - Error Surface Validation', () => {
             {input: 10}
         ]);
 
-        iit('setTimeout-based async for case %#', async (delay: number) => {
+        iit('setTimeout-based async for $delay ms', async (testCase: any) => {
             const start = Date.now();
-            await new Promise(resolve => setTimeout(resolve, delay));
+            await new Promise(resolve => setTimeout(resolve, testCase.delay));
             const elapsed = Date.now() - start;
-            expect(elapsed).toBeGreaterThanOrEqual(delay - 10); // Allow 10ms variance
-        }).where([[10], [20], [30]]);
+            expect(elapsed).toBeGreaterThanOrEqual(testCase.delay - 10); // Allow 10ms variance
+        }).where([{delay: 10}, {delay: 20}, {delay: 30}]);
     });
 
     // ===========================================
@@ -70,12 +65,6 @@ describe('Async Error Handling - Error Surface Validation', () => {
 
         // These tests verify that when an async test fails, the error
         // message includes enough context to identify which test case failed
-
-        iit('async error context test case %# with value %s', async (value: number) => {
-            // This test passes - proves context is preserved in success case
-            await Promise.resolve();
-            expect(value).toBeGreaterThan(0);
-        }).where([[1], [2], [3]]);
 
         // Demonstrates that Jasmine's error reporting shows the formatted test name
         xiit('failing async test for $name shows correct context (should fail)', async (testCase: any) => {
@@ -94,16 +83,16 @@ describe('Async Error Handling - Error Surface Validation', () => {
 
     describe('mixed sync and async test cases', () => {
 
-        iit('can mix sync and async - value %s', async (value: number) => {
-            if (value % 2 === 0) {
+        iit('can mix sync and async - value $value', async (testCase: any) => {
+            if (testCase.value % 2 === 0) {
                 // Async path
-                const result = await Promise.resolve(value * 2);
-                expect(result).toBe(value * 2);
+                const result = await Promise.resolve(testCase.value * 2);
+                expect(result).toBe(testCase.value * 2);
             } else {
                 // Sync path (still works in async function)
-                expect(value * 2).toBe(value * 2);
+                expect(testCase.value * 2).toBe(testCase.value * 2);
             }
-        }).where([[1], [2], [3], [4]]);
+        }).where([{value: 1}, {value: 2}, {value: 3}, {value: 4}]);
     });
 
     // ===========================================
@@ -125,14 +114,14 @@ describe('Async Error Handling - Error Surface Validation', () => {
             {value: 10}
         ]);
 
-        iit('Promise.all works correctly for case %#', async (count: number) => {
-            const promises = Array.from({length: count}, (_, i) =>
+        iit('Promise.all works correctly for $count promises', async (testCase: any) => {
+            const promises = Array.from({length: testCase.count}, (_, i) =>
                 Promise.resolve(i + 1)
             );
             const results = await Promise.all(promises);
-            expect(results.length).toBe(count);
-            expect(results[count - 1]).toBe(count);
-        }).where([[1], [3], [5]]);
+            expect(results.length).toBe(testCase.count);
+            expect(results[testCase.count - 1]).toBe(testCase.count);
+        }).where([{count: 1}, {count: 3}, {count: 5}]);
     });
 
     // ===========================================
@@ -140,16 +129,6 @@ describe('Async Error Handling - Error Surface Validation', () => {
     // ===========================================
 
     describe('async errors at different timing', () => {
-
-        iit('immediate async error for %s', async (value: number) => {
-            await Promise.resolve();
-            expect(value).toBeGreaterThan(0);
-        }).where([[1], [2], [3]]);
-
-        iit('delayed async operation for %s', async (delay: number) => {
-            await new Promise(resolve => setTimeout(resolve, delay));
-            expect(delay).toBeGreaterThan(0);
-        }).where([[5], [10], [15]]);
 
         iit('error after successful await for $name', async (testCase: any) => {
             const result = await Promise.resolve(testCase.name);
@@ -180,12 +159,12 @@ describe('Async Error Handling - Error Surface Validation', () => {
             {endpoint: '/api/comments'}
         ]);
 
-        iit('database-like pattern for id %s', async (id: number) => {
+        iit('database-like pattern for id $id', async (testCase: any) => {
             // Simulates DB query
             const record = await new Promise(resolve =>
-                setTimeout(() => resolve({id, name: `User${id}`}), 10)
+                setTimeout(() => resolve({id: testCase.id, name: `User${testCase.id}`}), 10)
             );
-            expect(record).toEqual({id, name: `User${id}`});
-        }).where([[1], [2], [3]]);
+            expect(record).toEqual({id: testCase.id, name: `User${testCase.id}`});
+        }).where([{id: 1}, {id: 2}, {id: 3}]);
     });
 });

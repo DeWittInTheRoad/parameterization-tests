@@ -1,44 +1,26 @@
 /**
  * Type definitions for parameterized testing utilities
  * @module parameterized-testing/core/types
- *
- * ## ⚠️ TYPE SAFETY WARNING
- *
- * These types provide **MINIMAL compile-time safety** due to TypeScript limitations.
- * TypeScript cannot distinguish between:
- * - Functions accepting spread args `(...args: any[])` vs single object `(obj: any)`
- * - Array format vs object/table format at the type level
- *
- * Runtime validation (template/format mismatch checking) is the primary safety mechanism.
- * See parameterization-test.utils.ts for full Type Safety Limitations documentation.
  */
 
 /**
  * Test function for iit/fiit
  *
- * Accepts either:
- * - Spread arguments for array format: `(a, b, c) => { ... }`
- * - Single object for object/table format: `(testCase) => { ... }`
- *
- * **Note:** TypeScript cannot enforce the correct usage - runtime validation handles this.
+ * Accepts a single object parameter containing test case data
  */
-export type TestFunction = (...args: any[]) => void | Promise<void>;
+export type TestFunction = (testCase: Record<string, any>) => void | Promise<void>;
 
 /**
  * Describe function for idescribe/fidescribe
  *
- * Always receives the complete test case (never spread):
- * - Array format: `(testCase: any[]) => { ... }`
- * - Object/table format: `(testCase: Record<string, any>) => { ... }`
- *
- * **Note:** Different from TestFunction - describe functions don't spread array args.
+ * Accepts a single object parameter containing test case data
  */
-export type DescribeFunction = (testCase: any) => void;
+export type DescribeFunction = (testCase: Record<string, any>) => void;
 
 /**
- * Type definition for a single test case
+ * Type definition for a single test case (always an object)
  */
-export type TestCase = any[] | Record<string, any>;
+export type TestCase = Record<string, any>;
 
 /**
  * Type definition for a collection of test cases
@@ -55,4 +37,4 @@ export type TableFormat = [string[], ...any[][]];
 /**
  * Union type of all possible data formats
  */
-export type DataFormatType = 'table' | 'array' | 'object';
+export type DataFormatType = 'table' | 'object';

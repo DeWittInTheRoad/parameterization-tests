@@ -3,8 +3,8 @@
  * @module parameterized-testing
  *
  * Provides data-driven testing capabilities for Jasmine test suites, allowing developers
- * to run the same test logic against multiple sets of test data. Supports three data formats:
- * array format, object format, and table format.
+ * to run the same test logic against multiple sets of test data. Supports two data formats:
+ * object format and table format.
  *
  * ## Public API
  *
@@ -14,11 +14,10 @@
  * - `xiit`, `xidescribe` - Excluded (skip these)
  *
  * **Utility Functions (Advanced):**
- * - `detectDataFormat` - Determine if test data is array/object/table format
- * - `formatArrayTestName` - Format test names with %s/%i (String) or %o/%j (JSON) placeholders
+ * - `detectDataFormat` - Determine if test data is object/table format
  * - `formatObjectTestName` - Format test names with $property placeholders
  * - `normalizeTableFormat` - Convert table format to object format
- * - `DataFormat` - Constants for format types (ARRAY, OBJECT, TABLE)
+ * - `DataFormat` - Constants for format types (OBJECT, TABLE)
  *
  * These utilities are exported for advanced use cases like custom test runners
  * or test name generation.
@@ -26,13 +25,6 @@
  * ## Type Safety Limitations
  *
  * This utility provides runtime flexibility at the cost of some compile-time type safety:
- *
- * **Array Format:**
- * - TypeScript cannot verify that the number of parameters in your test function matches
- *   the number of values in each array
- * - The types of spread arguments are not strictly checked
- * - Example: `iit('test', (a: number, b: number) => {}).where([[1, 2, 3]])` will compile
- *   but pass 3 arguments to a function expecting 2
  *
  * **Object/Table Format:**
  * - Property names in test case objects are not validated against your template string
@@ -47,14 +39,6 @@
  *
  * @example
  * ```ts
- * // Array format - spreads arguments
- * iit('should add %s and %s to get %s', (a, b, expected) => {
- *   expect(a + b).toBe(expected);
- * }).where([
- *   [2, 3, 5],
- *   [10, 20, 30]
- * ]);
- *
  * // Object format - passes whole object
  * iit('should add $a and $b to get $expected', (testCase) => {
  *   expect(testCase.a + testCase.b).toBe(testCase.expected);
@@ -82,7 +66,6 @@ import { createParameterizedRunner } from './core/create-parameterized-runner';
 
 // Re-export utility functions for advanced use cases
 export { detectDataFormat } from './formatters/detect-data-format';
-export { formatArrayTestName } from './formatters/format-array-test-name';
 export { formatObjectTestName } from './formatters/format-object-test-name';
 export { normalizeTableFormat } from './formatters/normalize-table-format';
 export { DataFormat } from './core/constants';
@@ -99,14 +82,6 @@ export { DataFormat } from './core/constants';
  *
  * @example
  * ```ts
- * // Array format - arguments are spread
- * iit('should add %s and %s to equal %s', (a, b, expected) => {
- *   expect(a + b).toBe(expected);
- * }).where([
- *   [1, 2, 3],
- *   [5, 5, 10]
- * ]);
- *
  * // Object format - object is passed as parameter
  * iit('should process $action for $user', (testCase) => {
  *   expect(processAction(testCase.action, testCase.user)).toBeTruthy();
@@ -125,16 +100,13 @@ export { DataFormat } from './core/constants';
  * ]);
  * ```
  */
-export const iit = createParameterizedRunner<TestFunction>(it, true);
+export const iit = createParameterizedRunner<TestFunction>(it);
 
 /**
  * Parameterized describe function for test suites
  *
  * Creates parameterized test suites using Jasmine's describe() function.
  * Returns an object with a where() method that accepts test data.
- *
- * **Note:** Unlike iit with array format, describe functions always receive
- * the complete test case (not spread) to allow setup of multiple related tests.
  *
  * @param nameTemplate - Suite name template with placeholders
  * @param describeFn - Describe function to execute
@@ -156,18 +128,19 @@ export const iit = createParameterizedRunner<TestFunction>(it, true);
  *   {feature: 'signup', environment: 'dev'}
  * ]);
  *
- * // Array format - entire array is passed
- * idescribe('Testing configuration %s', (config) => {
- *   it('should be valid', () => {
- *     expect(config).toBeDefined();
+ * // Table format - converted to objects
+ * idescribe('Browser $browser', (testCase) => {
+ *   it('should have browser name', () => {
+ *     expect(testCase.browser).toBeDefined();
  *   });
  * }).where([
- *   ['config1'],
- *   ['config2']
+ *   ['browser'],
+ *   ['Chrome'],
+ *   ['Firefox']
  * ]);
  * ```
  */
-export const idescribe = createParameterizedRunner<DescribeFunction>(describe, false);
+export const idescribe = createParameterizedRunner<DescribeFunction>(describe);
 
 /**
  * Focused parameterized it function - runs only these tests
@@ -196,7 +169,7 @@ export const idescribe = createParameterizedRunner<DescribeFunction>(describe, f
  *
  * @see {@link iit}
  */
-export const fiit = createParameterizedRunner<TestFunction>(fit, true);
+export const fiit = createParameterizedRunner<TestFunction>(fit);
 
 /**
  * Focused parameterized describe function - runs only these test suites
@@ -227,7 +200,7 @@ export const fiit = createParameterizedRunner<TestFunction>(fit, true);
  *
  * @see {@link idescribe}
  */
-export const fidescribe = createParameterizedRunner<DescribeFunction>(fdescribe, false);
+export const fidescribe = createParameterizedRunner<DescribeFunction>(fdescribe);
 
 /**
  * Excluded parameterized it function - skips these tests
@@ -256,7 +229,7 @@ export const fidescribe = createParameterizedRunner<DescribeFunction>(fdescribe,
  *
  * @see {@link iit}
  */
-export const xiit = createParameterizedRunner<TestFunction>(xit, true);
+export const xiit = createParameterizedRunner<TestFunction>(xit);
 
 /**
  * Excluded parameterized describe function - skips these test suites
@@ -288,4 +261,4 @@ export const xiit = createParameterizedRunner<TestFunction>(xit, true);
  *
  * @see {@link idescribe}
  */
-export const xidescribe = createParameterizedRunner<DescribeFunction>(xdescribe, false);
+export const xidescribe = createParameterizedRunner<DescribeFunction>(xdescribe);

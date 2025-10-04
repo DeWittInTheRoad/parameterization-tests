@@ -10,42 +10,6 @@ import { iit, idescribe, fiit, fidescribe } from './parameterization-test.utils'
 describe('Parameterized Testing Utility - Integration', () => {
 
     // ===========================================
-    // IIT - ARRAY FORMAT
-    // ===========================================
-
-    describe('iit with array format', () => {
-        iit('should add %s and %s to get %s', (a: any, b: any, expected: any) => {
-            expect(a + b).toBe(expected);
-        }).where([
-            [2, 3, 5],
-            [1, 4, 5],
-            [10, 20, 30]
-        ]);
-
-        iit('test case %#: should multiply %s by %s', (a: any, b: any) => {
-            expect(a * b).toBeGreaterThan(0);
-        }).where([
-            [2, 3],
-            [4, 5]
-        ]);
-
-        iit('value %i should be positive', (val: any) => {
-            expect(val).toBeGreaterThan(0);
-        }).where([
-            [42],
-            [100]
-        ]);
-
-        iit('object %j should have property', (obj: any) => {
-            expect(obj).toBeDefined();
-            expect(obj.a).toBeDefined();
-        }).where([
-            [{ a: 1, b: 2 }],
-            [{ a: 10, b: 20 }]
-        ]);
-    });
-
-    // ===========================================
     // IIT - OBJECT FORMAT
     // ===========================================
 
@@ -99,28 +63,6 @@ describe('Parameterized Testing Utility - Integration', () => {
             ['name', 'status'],
             ['user1', 'active'],
             ['user2', 'inactive']
-        ]);
-    });
-
-    // ===========================================
-    // IDESCRIBE - ARRAY FORMAT
-    // ===========================================
-
-    describe('idescribe with array format', () => {
-        idescribe('Calculator with %s and %s', (testCase: any) => {
-            it('should have valid test data', () => {
-                expect(testCase).toBeDefined();
-                expect(Array.isArray(testCase)).toBe(true);
-                expect(testCase.length).toBe(2);
-            });
-
-            it('should be able to use array values', () => {
-                const [a, b] = testCase;
-                expect(a + b).toBeGreaterThan(0);
-            });
-        }).where([
-            [2, 3],
-            [5, 7]
         ]);
     });
 
@@ -217,39 +159,15 @@ describe('Parameterized Testing Utility - Integration', () => {
     // ===========================================
 
     describe('template/format mismatch validation', () => {
-        it('should throw error when using array placeholders with object data', () => {
+        it('should throw error when mixing placeholders with wrong data format', () => {
             expect(() => {
-                iit('test %s and %i', (testCase: any) => {
-                    expect(testCase).toBeDefined();
-                }).where([{a: 1, b: 2}]);
-            }).toThrowError(/Template\/format mismatch.*array-style placeholders.*object format/);
-        });
-
-        it('should throw error when using object placeholders with array data', () => {
-            expect(() => {
-                iit('test $a and $b', (a: any, b: any) => {
-                    expect(a).toBeDefined();
-                }).where([[1, 2], [3, 4]]);
-            }).toThrowError(/Template\/format mismatch.*object-style placeholders.*array format/);
-        });
-
-        it('should throw error when mixing array and object placeholders with object data', () => {
-            expect(() => {
-                iit('test %s and $property', (testCase: any) => {
-                    expect(testCase).toBeDefined();
-                }).where([{property: 'value'}]);
-            }).toThrowError(/Template\/format mismatch/);
-        });
-
-        it('should throw error when using array placeholders with table data', () => {
-            expect(() => {
-                iit('test %s', (testCase: any) => {
+                iit('test $property', (testCase: any) => {
                     expect(testCase).toBeDefined();
                 }).where([
                     ['a', 'b'],
                     [1, 2]
                 ]);
-            }).toThrowError(/Template\/format mismatch.*array-style placeholders.*table format/);
+            }).toThrowError(/Template\/format mismatch/);
         });
     });
 

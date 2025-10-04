@@ -3,7 +3,7 @@
  * @module parameterized-testing/formatters/format-object-test-name
  */
 
-import { PLACEHOLDERS } from '../core/constants';
+import { INDEX_PLACEHOLDER } from '../core/constants';
 
 /**
  * Formats test names with object-style placeholders
@@ -29,7 +29,7 @@ import { PLACEHOLDERS } from '../core/constants';
  * ```
  */
 export const formatObjectTestName = (template: string, testCase: Record<string, any>, index: number): string => {
-  const withIndex = template.replace(PLACEHOLDERS.INDEX.object, index.toString());
+  const withIndex = template.replace(INDEX_PLACEHOLDER, index.toString());
 
   // Single-pass replacement: O(n) instead of O(n²)
   // Matches $propertyName where propertyName can contain special chars (escaped in property lookup)

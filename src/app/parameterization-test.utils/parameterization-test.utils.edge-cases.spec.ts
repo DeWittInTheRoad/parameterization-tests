@@ -17,21 +17,6 @@ describe('Edge Cases: Special JavaScript Values', () => {
       return [circular];
     })());
 
-    iit('should handle circular references in array format with %s', (obj: any) => {
-      // String() handles circular refs fine
-      expect(obj.self).toBe(obj);
-    }).where([
-      [(() => { const c: any = { name: 'circular' }; c.self = c; return c; })()]
-    ]);
-
-    iit('test %j with circular (fallback to String)', (obj: any) => {
-      // JSON.stringify throws, but we catch it and fallback to String()
-      expect(obj).toBeTruthy();
-      expect(obj.self).toBe(obj);
-    }).where([
-      [(() => { const c: any = { name: 'circular' }; c.self = c; return c; })()]
-    ]);
-
     iit('test $name (nested circular)', (testCase: any) => {
       expect(testCase.parent.child).toBe(testCase);
     }).where([(() => {
@@ -48,21 +33,6 @@ describe('Edge Cases: Special JavaScript Values', () => {
     }).where([
       { value: undefined },
     ]);
-
-    iit('should handle undefined in array format with %s', (value: any) => {
-      if (value === undefined) {
-        expect(String(value)).toBe('undefined');
-      } else {
-        expect(String(value)).toBe('null');
-      }
-    }).where([
-      [undefined],
-      [null],
-    ]);
-
-    iit('should serialize undefined as string "undefined" in test name %s', (value: any) => {
-      expect(value).toBeUndefined();
-    }).where([[undefined]]);
 
     iit('value: $value (table format)', (testCase: any) => {
       expect(testCase.value).toBeUndefined();
@@ -86,31 +56,6 @@ describe('Edge Cases: Special JavaScript Values', () => {
     }).where([
       { value: null },
     ]);
-
-    iit('should handle null in array format with %s', (value: any) => {
-      expect(String(value)).toBe('null');
-      expect(value).toBeNull();
-    }).where([
-      [null],
-    ]);
-
-    iit('should handle null with %j (JSON.stringify)', (value: any) => {
-      expect(JSON.stringify(value)).toBe('null');
-      expect(value).toBeNull();
-    }).where([
-      [null],
-    ]);
-
-    iit('should handle falsy value: %s', (value: any) => {
-      // All falsy values should be tested: null, undefined, 0, false, ''
-      expect([null, undefined, 0, false, '']).toContain(value);
-    }).where([
-      [null],
-      [undefined],
-      [0],
-      [false],
-      [''],
-    ]);
   });
 
   describe('Date Objects', () => {
@@ -125,23 +70,6 @@ describe('Edge Cases: Special JavaScript Values', () => {
       { date: date2, year: 2024 },
     ]);
 
-    iit('should handle Date objects in array format with %s', (date: Date, expected: string) => {
-      expect(date).toBeInstanceOf(Date);
-      expect(date.toISOString()).toContain(expected);
-    }).where([
-      [date1, '2024-01-01'],
-      [date2, '2024-12-31'],
-    ]);
-
-    iit('should serialize Date as ISO string with %j', (date: Date) => {
-      expect(date).toBeInstanceOf(Date);
-      const json = JSON.stringify(date);
-      expect(json).toMatch(/"2024-/);
-    }).where([
-      [date1],
-      [date2],
-    ]);
-
     iit('date: $date, year: $year (table format)', (testCase: any) => {
       expect(testCase.date).toBeInstanceOf(Date);
       expect(testCase.date.getUTCFullYear()).toBe(testCase.year);
@@ -149,13 +77,6 @@ describe('Edge Cases: Special JavaScript Values', () => {
       ['date', 'year'],
       [date1, 2024],
       [date2, 2024],
-    ]);
-
-    iit('invalid date: %s', (date: Date) => {
-      expect(date).toBeInstanceOf(Date);
-      expect(isNaN(date.getTime())).toBe(true);
-    }).where([
-      [new Date('invalid')],
     ]);
   });
 
@@ -169,32 +90,6 @@ describe('Edge Cases: Special JavaScript Values', () => {
       { value: -9007199254740991n, expected: -9007199254740991n },
     ]);
 
-    iit('should handle BigInt in array format with %s', (value: bigint, expected: bigint) => {
-      expect(typeof value).toBe('bigint');
-      expect(value).toBe(expected);
-      expect(String(value)).toBe(String(expected));
-    }).where([
-      [123n, 123n],
-      [9007199254740991n, 9007199254740991n],
-      [-456n, -456n],
-    ]);
-
-    iit('value: %o (BigInt fallback to String)', (value: bigint) => {
-      // Now that we handle BigInt specially, this should work
-      expect(typeof value).toBe('bigint');
-      expect(value).toBe(123n);
-    }).where([
-      [123n],
-    ]);
-
-    iit('should handle very large BigInt values', (value: bigint) => {
-      expect(typeof value).toBe('bigint');
-      expect(value > 0n).toBe(true);
-    }).where([
-      [BigInt('12345678901234567890')],
-      [BigInt('99999999999999999999999999')],
-    ]);
-
     iit('value: $value (BigInt table format)', (testCase: any) => {
       expect(typeof testCase.value).toBe('bigint');
     }).where([
@@ -205,12 +100,6 @@ describe('Edge Cases: Special JavaScript Values', () => {
   });
 
   describe('Long Arrays', () => {
-    iit('index %#: value %s (100 elements)', (value: number) => {
-      expect(typeof value).toBe('number');
-      expect(value).toBeGreaterThanOrEqual(0);
-      expect(value).toBeLessThan(100);
-    }).where(Array.from({ length: 100 }, (_, i) => [i]));
-
     iit('test $index (1000 elements)', (testCase: any) => {
       expect(testCase.value).toBe(testCase.index * 2);
     }).where(Array.from({ length: 1000 }, (_, i) => ({ index: i, value: i * 2 })));

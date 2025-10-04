@@ -8,7 +8,6 @@
 
 import {
     detectDataFormat,
-    formatArrayTestName,
     formatObjectTestName,
     normalizeTableFormat,
     DataFormat
@@ -21,11 +20,6 @@ describe('Parameterization Utility - Unit Tests', () => {
     // ===========================================
 
     describe('detectDataFormat', () => {
-        it('should detect array format when first item is array with non-string', () => {
-            const result = detectDataFormat([[1, 2], [3, 4]]);
-            expect(result).toBe(DataFormat.ARRAY);
-        });
-
         it('should detect object format when first item is object', () => {
             const result = detectDataFormat([{ a: 1 }, { b: 2 }]);
             expect(result).toBe(DataFormat.OBJECT);
@@ -46,113 +40,10 @@ describe('Parameterization Utility - Unit Tests', () => {
             expect(result).toBe(DataFormat.TABLE);
         });
 
-        it('should detect array format with mixed types', () => {
-            const result = detectDataFormat([[1, 'text'], [2, 'more']]);
-            expect(result).toBe(DataFormat.ARRAY);
-        });
-
         it('should throw error for empty first array (ambiguous format)', () => {
             expect(() => detectDataFormat([[]])).toThrowError(
                 /Cannot detect format: first array is empty/
             );
-        });
-
-        it('should detect array format when first item contains null', () => {
-            const result = detectDataFormat([[null, 'value'], [1, 2]]);
-            expect(result).toBe(DataFormat.ARRAY);
-        });
-
-        it('should detect array format when first item contains undefined', () => {
-            const result = detectDataFormat([[undefined, 'name'], [1, 2]]);
-            expect(result).toBe(DataFormat.ARRAY);
-        });
-
-        it('should detect array format when headers have mixed string and non-string', () => {
-            const result = detectDataFormat([['name', null, 'age'], [1, 2, 3]]);
-            expect(result).toBe(DataFormat.ARRAY);
-        });
-
-        it('should require ALL elements to be strings for table format', () => {
-            // First element is undefined, so should be ARRAY not TABLE
-            const result = detectDataFormat([[undefined, 'name', 'age'], [1, 2, 3]]);
-            expect(result).toBe(DataFormat.ARRAY);
-        });
-    });
-
-    // ===========================================
-    // formatArrayTestName
-    // ===========================================
-
-    describe('formatArrayTestName', () => {
-        it('should replace %s placeholder with string value', () => {
-            const result = formatArrayTestName('test %s', [42], 0);
-            expect(result).toBe('test 42');
-        });
-
-        it('should replace multiple %s placeholders in order', () => {
-            const result = formatArrayTestName('test %s and %s', [1, 2], 0);
-            expect(result).toBe('test 1 and 2');
-        });
-
-        it('should replace %# placeholder with index', () => {
-            const result = formatArrayTestName('case %#: value', [], 5);
-            expect(result).toBe('case 5: value');
-        });
-
-        it('should combine %# and %s placeholders', () => {
-            const result = formatArrayTestName('case %#: %s + %s', [1, 2], 0);
-            expect(result).toBe('case 0: 1 + 2');
-        });
-
-        it('should replace %i placeholder with integer', () => {
-            const result = formatArrayTestName('value is %i', [42], 0);
-            expect(result).toBe('value is 42');
-        });
-
-        it('should replace %j placeholder with JSON', () => {
-            const result = formatArrayTestName('object is %j', [{ a: 1, b: 2 }], 0);
-            expect(result).toBe('object is {"a":1,"b":2}');
-        });
-
-        it('should replace %o placeholder with JSON (same as %j)', () => {
-            const result = formatArrayTestName('array is %o', [[1, 2, 3]], 0);
-            expect(result).toBe('array is [1,2,3]');
-        });
-
-        it('should serialize objects with %o placeholder', () => {
-            const result = formatArrayTestName('object is %o', [{ a: 1, b: 2 }], 0);
-            expect(result).toBe('object is {"a":1,"b":2}');
-        });
-
-        it('should handle multiple values with same placeholder', () => {
-            const result = formatArrayTestName('%s, %s, %s', ['a', 'b', 'c'], 0);
-            expect(result).toBe('a, b, c');
-        });
-
-        it('should convert numbers to strings', () => {
-            const result = formatArrayTestName('%s + %s = %s', [2, 3, 5], 1);
-            expect(result).toBe('2 + 3 = 5');
-        });
-
-        it('should handle empty array', () => {
-            const result = formatArrayTestName('test %s', [], 0);
-            expect(result).toBe('test %s');
-        });
-
-        it('should warn when more values than placeholders (data loss)', () => {
-            spyOn(console, 'warn');
-            const result = formatArrayTestName('test %s', [1, 2, 3, 4, 5], 0);
-            expect(result).toBe('test 1');
-            expect(console.warn).toHaveBeenCalledWith(
-                jasmine.stringMatching(/has 5 values but only 1 placeholders.*Unused values.*\[2,3,4,5\]/)
-            );
-        });
-
-        it('should not warn when values match placeholders', () => {
-            spyOn(console, 'warn');
-            const result = formatArrayTestName('%s %s %s', [1, 2, 3], 0);
-            expect(result).toBe('1 2 3');
-            expect(console.warn).not.toHaveBeenCalled();
         });
     });
 
@@ -334,11 +225,6 @@ describe('Parameterization Utility - Unit Tests', () => {
     // ===========================================
 
     describe('edge cases and boundary conditions', () => {
-        it('formatArrayTestName should handle special characters', () => {
-            const result = formatArrayTestName('test: %s', ['<script>'], 0);
-            expect(result).toBe('test: <script>');
-        });
-
         it('formatObjectTestName should handle property names with special chars', () => {
             const result = formatObjectTestName('$prop-name', { 'prop-name': 'value' }, 0);
             // Note: This may not work as expected due to regex limitations
@@ -353,11 +239,6 @@ describe('Parameterization Utility - Unit Tests', () => {
             ]);
 
             expect(result).toEqual([]);
-        });
-
-        it('formatArrayTestName with index at boundary', () => {
-            const result = formatArrayTestName('case %#', [], 999);
-            expect(result).toBe('case 999');
         });
 
         it('formatObjectTestName with negative index', () => {

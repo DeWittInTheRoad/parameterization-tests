@@ -19,55 +19,6 @@ import { iit, idescribe, fiit, fidescribe, xiit, xidescribe } from '../src/app/p
 describe('Parameterized Testing - Feature Demonstration', () => {
 
     // ===========================================
-    // ARRAY FORMAT EXAMPLES
-    // ===========================================
-
-    describe('Array Format - Spreads arguments to function', () => {
-
-        iit('should add %s and %s to get %s', (a, b, expected) => {
-            expect(a + b).toBe(expected);
-        }).where([
-            [2, 3, 5],
-            [1, 4, 5],
-            [10, 20, 30]
-        ]);
-        // ✅ Karma Output:
-        // "should add 2 and 3 to get 5"
-        // "should add 1 and 4 to get 5"
-        // "should add 10 and 20 to get 30"
-
-        iit('test case %#: %s + %s', (a, b) => {
-            expect(a + b).toBeGreaterThan(0);
-        }).where([
-            [1, 2],
-            [3, 4]
-        ]);
-        // ✅ Karma Output:
-        // "test case 0: 1 + 2"
-        // "test case 1: 3 + 4"
-
-        iit('value is %i', (val: any) => {
-            expect(val).toBeGreaterThan(0);
-        }).where([
-            [42],
-            [100]
-        ]);
-        // ✅ Karma Output:
-        // "value is 42"
-        // "value is 100"
-
-        iit('object is %j', (obj: any) => {
-            expect(obj.a).toBeDefined();
-        }).where([
-            [{ a: 1, b: 2 }],
-            [{ a: 10, b: 20 }]
-        ]);
-        // ✅ Karma Output:
-        // "object is {"a":1,"b":2}"
-        // "object is {"a":10,"b":20}"
-    });
-
-    // ===========================================
     // OBJECT FORMAT EXAMPLES
     // ===========================================
 
@@ -171,28 +122,6 @@ describe('Parameterized Testing - Feature Demonstration', () => {
     // ===========================================
 
     describe('idescribe - Parameterized describe blocks', () => {
-
-        idescribe('Calculator with %s and %s', (testCase: any) => {
-            it('should have valid array data', () => {
-                expect(testCase).toBeDefined();
-                expect(Array.isArray(testCase)).toBe(true);
-            });
-
-            it('should be able to sum values', () => {
-                const [a, b] = testCase;
-                expect(a + b).toBeGreaterThan(0);
-            });
-        }).where([
-            [2, 3],
-            [5, 7]
-        ]);
-        // ✅ Karma Output:
-        // "Calculator with 2 and 3"
-        //   - "should have valid array data"
-        //   - "should be able to sum values"
-        // "Calculator with 5 and 7"
-        //   - "should have valid array data"
-        //   - "should be able to sum values"
 
         idescribe('Testing $feature with $config', (testCase: any) => {
             it('should have feature and config', () => {
@@ -346,14 +275,14 @@ describe('Parameterized Testing - Feature Demonstration', () => {
         // "async operation for 2"
         // "async operation for 3"
 
-        iit('delayed test %s ms', async (delay: any) => {
+        iit('delayed test $delay ms', async (testCase: any) => {
             const start = Date.now();
-            await new Promise(resolve => setTimeout(resolve, delay));
+            await new Promise(resolve => setTimeout(resolve, testCase.delay));
             const elapsed = Date.now() - start;
-            expect(elapsed).toBeGreaterThanOrEqual(delay - 10);
+            expect(elapsed).toBeGreaterThanOrEqual(testCase.delay - 10);
         }).where([
-            [10],
-            [20]
+            {delay: 10},
+            {delay: 20}
         ]);
         // ✅ Karma Output:
         // "delayed test 10 ms"
