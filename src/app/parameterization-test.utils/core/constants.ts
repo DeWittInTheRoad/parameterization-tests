@@ -7,20 +7,12 @@
  * Placeholder patterns for test name formatting
  * @constant {Object} PLACEHOLDERS
  * @property {Object} INDEX - Index placeholder patterns
- * @property {Object} STRING - String placeholder pattern
- * @property {Object} INTEGER - Integer placeholder pattern
- * @property {Object} JSON - JSON placeholder pattern
- * @property {Object} OBJECT - Object placeholder pattern
  */
 export const PLACEHOLDERS = {
   INDEX: {
     array: /%#/g,
     object: /\$#/g
-  },
-  STRING: /%s/g,
-  INTEGER: /%i/g,
-  JSON: /%j/g,
-  OBJECT: /%o/g
+  }
 } as const;
 
 /**
