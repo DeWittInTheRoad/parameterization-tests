@@ -1,8 +1,11 @@
 /**
  * Demonstration File for Parameterized Testing Utility
  *
+ * ⚠️ This file is EXCLUDED from test runs (see tsconfig.json and examples/README.md)
+ * It exists for demonstration purposes only, to show usage patterns.
+ *
  * This file showcases all features and formats of the parameterization utilities.
- * Run this file and observe the Karma output to see the generated test names.
+ * To run manually: ng test --include='examples/**/*.spec.ts'
  *
  * Expected output in Karma:
  * - Array format: "should add 2 and 3 to get 5", "should add 1 and 4 to get 5", etc.
@@ -10,7 +13,7 @@
  * - Table format: "should add 2 and 3 to get 5", "test 0: user1 is active", etc.
  */
 
-import { iit, idescribe, fiit, fidescribe, xiit, xidescribe } from './parameterization-test.utils';
+import { iit, idescribe, fiit, fidescribe, xiit, xidescribe } from '../src/app/parameterization-test.utils/parameterization-test.utils';
 
 describe('Parameterized Testing - Feature Demonstration', () => {
 
