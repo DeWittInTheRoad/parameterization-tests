@@ -32,10 +32,9 @@ import { PLACEHOLDERS } from '../core/constants';
 export const formatObjectTestName = (template: string, testCase: Record<string, any>, index: number): string => {
   const withIndex = template.replace(PLACEHOLDERS.INDEX.object, index.toString());
 
-  return Object.entries(testCase).reduce((result, [key, value]) => {
-    // Escape regex special characters in property name to prevent injection
-    const escapedKey = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const regex = new RegExp(`\\$${escapedKey}`, 'g');
-    return result.replace(regex, String(value));
-  }, withIndex);
+  // Single-pass replacement: O(n) instead of O(n²)
+  // Matches $propertyName where propertyName can contain special chars (escaped in property lookup)
+  return withIndex.replace(/\$([a-zA-Z_$][\w.$[\]()*+?^|\\-]*)/g, (match, key) => {
+    return key in testCase ? String(testCase[key]) : match;
+  });
 };
