@@ -6,6 +6,28 @@
  * to run the same test logic against multiple sets of test data. Supports three data formats:
  * array format, object format, and table format.
  *
+ * ## Type Safety Limitations
+ *
+ * This utility provides runtime flexibility at the cost of some compile-time type safety:
+ *
+ * **Array Format:**
+ * - TypeScript cannot verify that the number of parameters in your test function matches
+ *   the number of values in each array
+ * - The types of spread arguments are not strictly checked
+ * - Example: `iit('test', (a: number, b: number) => {}).where([[1, 2, 3]])` will compile
+ *   but pass 3 arguments to a function expecting 2
+ *
+ * **Object/Table Format:**
+ * - Property names in test case objects are not validated against your template string
+ * - Property access is typed as `any`, not based on actual object shape
+ * - Example: `(testCase) => testCase.foo` will compile even if test cases don't have `foo`
+ *
+ * **Recommendations:**
+ * - Use TypeScript's `noImplicitAny` to catch some type issues
+ * - Add runtime assertions in tests for critical type assumptions
+ * - Consider explicit type annotations for test case parameters when clarity is important
+ * - The improved error messages will help catch mismatches at runtime
+ *
  * @example
  * // Array format - spreads arguments
  * iit('should add %s and %s to get %s', (a, b, expected) => {
