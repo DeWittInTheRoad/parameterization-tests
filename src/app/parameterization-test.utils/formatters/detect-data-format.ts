@@ -28,7 +28,9 @@ import { DataFormat } from '../core/constants';
  */
 export const detectDataFormat = (testCases: TestSuite): DataFormatType => {
   if (!Array.isArray(testCases)) {
-    throw new Error('Test cases must be an array');
+    throw new Error(
+      `Test cases must be an array, received: ${typeof testCases}`
+    );
   }
 
   if (testCases.length === 0) return DataFormat.OBJECT;

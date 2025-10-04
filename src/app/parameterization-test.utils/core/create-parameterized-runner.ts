@@ -47,11 +47,15 @@ export const createParameterizedRunner = <T extends TestFunction | DescribeFunct
   isTestFunction: boolean
 ) => (nameTemplate: string, testFn: T) => {
   if (!nameTemplate || typeof nameTemplate !== 'string') {
-    throw new Error('Test name template must be a non-empty string');
+    throw new Error(
+      `Test name template must be a non-empty string, received: ${typeof nameTemplate === 'string' ? '(empty string)' : typeof nameTemplate}`
+    );
   }
 
   if (!testFn || typeof testFn !== 'function') {
-    throw new Error('Test function must be a valid function');
+    throw new Error(
+      `Test function must be a valid function, received: ${typeof testFn}`
+    );
   }
 
   return {
@@ -72,7 +76,9 @@ export const createParameterizedRunner = <T extends TestFunction | DescribeFunct
      */
     where: (testCases: TestSuite | TableFormat) => {
       if (!Array.isArray(testCases)) {
-        throw new Error('Test cases must be an array');
+        throw new Error(
+          `Test cases must be an array for template "${nameTemplate}", received: ${typeof testCases}`
+        );
       }
 
       // Allow empty arrays - simply don't execute any tests
