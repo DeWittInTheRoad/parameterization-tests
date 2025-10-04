@@ -5,12 +5,10 @@
  * and process test data. These are pure functions that can be tested in isolation.
  */
 
-import {
-    detectDataFormat,
-    formatArrayTestName,
-    formatObjectTestName,
-    normalizeTableFormat
-} from './parameterization-test.utils';
+import { detectDataFormat } from './formatters/detect-data-format';
+import { formatArrayTestName } from './formatters/format-array-test-name';
+import { formatObjectTestName } from './formatters/format-object-test-name';
+import { normalizeTableFormat } from './formatters/normalize-table-format';
 
 describe('Parameterization Utility - Unit Tests', () => {
 
