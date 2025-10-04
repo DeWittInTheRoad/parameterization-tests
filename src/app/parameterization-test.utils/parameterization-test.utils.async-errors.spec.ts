@@ -78,7 +78,7 @@ describe('Async Error Handling - Error Surface Validation', () => {
         }).where([[1], [2], [3]]);
 
         // Demonstrates that Jasmine's error reporting shows the formatted test name
-        xit('failing async test for $name shows correct context (should fail)', async (testCase: any) => {
+        xiit('failing async test for $name shows correct context (should fail)', async (testCase: any) => {
             await Promise.resolve();
             throw new Error(`Failed for ${testCase.name} - error should show test case context`);
         }).where([

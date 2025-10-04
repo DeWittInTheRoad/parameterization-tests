@@ -281,7 +281,7 @@ describe('Edge Cases: Special JavaScript Values', () => {
       }));
 
       iit('nested array at index $index', (testCase: any) => {
-        expect(testCase.values).toHaveLength(100);
+        expect(testCase.values.length).toBe(100);
         expect(testCase.values[99]).toBe(99);
       }).where(nestedLongArrays);
     });
@@ -310,7 +310,7 @@ describe('Edge Cases: Special JavaScript Values', () => {
     it('should handle empty arrays as test case values', () => {
       iit('empty: $isEmpty', (testCase: any) => {
         expect(Array.isArray(testCase.arr)).toBe(true);
-        expect(testCase.arr).toHaveLength(0);
+        expect(testCase.arr.length).toBe(0);
       }).where([
         { arr: [], isEmpty: true },
       ]);
