@@ -65,9 +65,11 @@ export const normalizeTableFormat = (testCases: TableFormat): Record<string, any
       );
     }
 
-    return headers.reduce((obj, header, index) => ({
-      ...obj,
-      [header]: row[index]
-    }), {} as Record<string, any>);
+    // Direct assignment: O(n) instead of O(n²) with spread operator
+    const obj: Record<string, any> = {};
+    for (let i = 0; i < headers.length; i++) {
+      obj[headers[i]] = row[i];
+    }
+    return obj;
   });
 };
