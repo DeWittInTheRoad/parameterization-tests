@@ -15,7 +15,7 @@
  *
  * **Utility Functions (Advanced):**
  * - `detectDataFormat` - Determine if test data is array/object/table format
- * - `formatArrayTestName` - Format test names with %s, %i, %j, %o placeholders
+ * - `formatArrayTestName` - Format test names with %s/%i (String) or %o/%j (JSON) placeholders
  * - `formatObjectTestName` - Format test names with $property placeholders
  * - `normalizeTableFormat` - Convert table format to object format
  * - `DataFormat` - Constants for format types (ARRAY, OBJECT, TABLE)

@@ -114,9 +114,14 @@ describe('Parameterization Utility - Unit Tests', () => {
             expect(result).toBe('object is {"a":1,"b":2}');
         });
 
-        it('should replace %o placeholder with object string', () => {
+        it('should replace %o placeholder with JSON (same as %j)', () => {
             const result = formatArrayTestName('array is %o', [[1, 2, 3]], 0);
-            expect(result).toBe('array is 1,2,3');
+            expect(result).toBe('array is [1,2,3]');
+        });
+
+        it('should serialize objects with %o placeholder', () => {
+            const result = formatArrayTestName('object is %o', [{ a: 1, b: 2 }], 0);
+            expect(result).toBe('object is {"a":1,"b":2}');
         });
 
         it('should handle multiple values with same placeholder', () => {

@@ -12,13 +12,12 @@ import { PLACEHOLDERS } from '../core/constants';
  * - `%#` - Replaced with test case index
  * - `%s` - String representation using String(value)
  * - `%i` - Integer placeholder (alias for %s, uses String(value))
- * - `%o` - Object placeholder (alias for %s, uses String(value))
- * - `%j` - JSON representation using JSON.stringify(value)
+ * - `%o` - Object placeholder using JSON.stringify(value)
+ * - `%j` - JSON representation (alias for %o, uses JSON.stringify(value))
  *
- * **Note:** %s, %i, and %o are functionally identical - all use String(value).
- * They exist for compatibility with printf-style formatting conventions and
- * semantic clarity in test names (e.g., use %i for numbers, %s for strings).
- * Only %j behaves differently by using JSON.stringify().
+ * **Note:** %s and %i are aliases (both use String(value)).
+ * %o and %j are aliases (both use JSON.stringify(value)).
+ * Use %s/%i for primitives and %o/%j for objects/arrays.
  *
  * Placeholders are replaced in the order they appear, consuming values from
  * the testCase array sequentially. For fine-grained control, use object format.
@@ -33,14 +32,14 @@ import { PLACEHOLDERS } from '../core/constants';
  * formatArrayTestName('test %# with %s and %s', [10, 20], 0)
  * // returns 'test 0 with 10 and 20'
  *
- * formatArrayTestName('data: %j', [{a: 1}], 2)
+ * formatArrayTestName('data: %o', [{a: 1}], 2)
  * // returns 'data: {"a":1}'
  *
- * // All produce the same output - semantic difference only
+ * // String vs JSON serialization
  * formatArrayTestName('%s', [42], 0)    // returns '42'
  * formatArrayTestName('%i', [42], 0)    // returns '42' (same as %s)
- * formatArrayTestName('%o', [42], 0)    // returns '42' (same as %s)
- * formatArrayTestName('%j', [42], 0)    // returns '42' (JSON)
+ * formatArrayTestName('%o', [{a: 1}], 0)    // returns '{"a":1}' (JSON)
+ * formatArrayTestName('%j', [{a: 1}], 0)    // returns '{"a":1}' (same as %o)
  * ```
  */
 export const formatArrayTestName = (template: string, testCase: any[], index: number): string => {
@@ -58,8 +57,8 @@ export const formatArrayTestName = (template: string, testCase: any[], index: nu
       switch (type) {
         case 's':
         case 'i':
-        case 'o':
           return String(value);
+        case 'o':
         case 'j':
           return JSON.stringify(value);
         default:
