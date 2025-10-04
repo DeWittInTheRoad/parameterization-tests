@@ -135,6 +135,36 @@ describe('Parameterization Utility - Unit Tests', () => {
             const result = formatObjectTestName('$a*b $c+d $e?f', { 'a*b': '1', 'c+d': '2', 'e?f': '3' }, 0);
             expect(result).toBe('1 2 3');
         });
+
+        it('should handle deeply nested dots in property names', () => {
+            const result = formatObjectTestName('$a.b.c.d $x.y.z', { 'a.b.c.d': 'deep', 'x.y.z': 'nested' }, 0);
+            expect(result).toBe('deep nested');
+        });
+
+        it('should handle multiple bracket notations in property names', () => {
+            const result = formatObjectTestName('$arr[0][1] $obj[key][id]', { 'arr[0][1]': 'val1', 'obj[key][id]': 'val2' }, 0);
+            expect(result).toBe('val1 val2');
+        });
+
+        it('should handle mixed dots and brackets in property names', () => {
+            const result = formatObjectTestName('$user.items[0] $data[key].value', { 'user.items[0]': 'item', 'data[key].value': 'result' }, 0);
+            expect(result).toBe('item result');
+        });
+
+        it('should handle trailing dots in property names', () => {
+            const result = formatObjectTestName('$prop. $name.', { 'prop.': 'val', 'name.': 'test' }, 0);
+            expect(result).toBe('val test');
+        });
+
+        it('should handle empty brackets in property names', () => {
+            const result = formatObjectTestName('$arr[] $obj[]', { 'arr[]': 'empty1', 'obj[]': 'empty2' }, 0);
+            expect(result).toBe('empty1 empty2');
+        });
+
+        it('should handle complex special characters with dots/brackets', () => {
+            const result = formatObjectTestName('$a.b[c]*.d $x[y].z+w', { 'a.b[c]*.d': '1', 'x[y].z+w': '2' }, 0);
+            expect(result).toBe('1 2');
+        });
     });
 
     // ===========================================
