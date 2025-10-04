@@ -15,12 +15,17 @@ import { PLACEHOLDERS } from '../core/constants';
  * @returns {string} Formatted test name with placeholders replaced
  *
  * @description
- * Supported placeholders:
+ * Supported placeholders (printf-style for familiarity):
  * - %# - Replaced with test case index
- * - %s - Replaced with string representation of value
- * - %i - Replaced with integer representation of value
- * - %j - Replaced with JSON.stringify() of value
- * - %o - Replaced with String() representation of value
+ * - %s - String representation using String(value)
+ * - %i - Integer placeholder (alias for %s, uses String(value))
+ * - %o - Object placeholder (alias for %s, uses String(value))
+ * - %j - JSON representation using JSON.stringify(value)
+ *
+ * **Note:** %s, %i, and %o are functionally identical - all use String(value).
+ * They exist for compatibility with printf-style formatting conventions and
+ * semantic clarity in test names (e.g., use %i for numbers, %s for strings).
+ * Only %j behaves differently by using JSON.stringify().
  *
  * Placeholders are replaced in the order they appear, consuming values from
  * the testCase array sequentially. For fine-grained control, use object format.
@@ -32,6 +37,13 @@ import { PLACEHOLDERS } from '../core/constants';
  * @example
  * formatArrayTestName('data: %j', [{a: 1}], 2)
  * // returns 'data: {"a":1}'
+ *
+ * @example
+ * // All produce the same output - semantic difference only
+ * formatArrayTestName('%s', [42], 0)    // returns '42'
+ * formatArrayTestName('%i', [42], 0)    // returns '42' (same as %s)
+ * formatArrayTestName('%o', [42], 0)    // returns '42' (same as %s)
+ * formatArrayTestName('%j', [42], 0)    // returns '42' (JSON)
  */
 export const formatArrayTestName = (template: string, testCase: any[], index: number): string => {
   // First replace index placeholder
