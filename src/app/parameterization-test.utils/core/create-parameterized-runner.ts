@@ -9,12 +9,10 @@ import type {
   TestSuite,
   TableFormat
 } from './types';
-import { DataFormat } from './constants';
-import {
-  detectDataFormat,
-  formatObjectTestName,
-  normalizeTableFormat
-} from '../formatters';
+import { DataFormat } from './types';
+import { detectDataFormat } from '../formatters/detect-data-format';
+import { formatObjectTestName } from '../formatters/format-object-test-name';
+import { normalizeTableFormat } from '../formatters/normalize-table-format';
 import { validateObjectConsistency } from '../formatters/validate-object-consistency';
 
 /**

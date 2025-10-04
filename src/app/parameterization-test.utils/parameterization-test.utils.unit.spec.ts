@@ -8,7 +8,7 @@
 import { detectDataFormat } from './formatters/detect-data-format';
 import { formatObjectTestName } from './formatters/format-object-test-name';
 import { normalizeTableFormat } from './formatters/normalize-table-format';
-import { DataFormat } from './core/constants';
+import { DataFormat } from './core/types';
 
 describe('Parameterization Utility - Unit Tests', () => {
 

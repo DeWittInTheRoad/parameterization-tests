@@ -4,7 +4,7 @@
  */
 
 import type { TestSuite, DataFormatType } from '../core/types';
-import { DataFormat } from '../core/constants';
+import { DataFormat } from '../core/types';
 
 /**
  * Detects the format of test case data by examining the first element

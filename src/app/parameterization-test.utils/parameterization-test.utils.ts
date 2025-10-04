@@ -59,7 +59,7 @@ import type { TestFunction, DescribeFunction } from './core/types';
 import { createParameterizedRunner } from './core/create-parameterized-runner';
 
 // Re-export constants
-export { DataFormat } from './core/constants';
+export { DataFormat } from './core/types';
 
 /**
  * Parameterized it function for individual tests
