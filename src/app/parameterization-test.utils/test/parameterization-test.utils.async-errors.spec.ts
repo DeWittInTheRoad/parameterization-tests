@@ -5,7 +5,7 @@
  * are properly preserved and surfaced by Jasmine, not swallowed by our wrapper.
  */
 
-import { iit, xiit } from '../parameterization-test.utils';
+import { iit } from '../parameterization-test.utils';
 
 describe('Async Error Handling - Error Surface Validation', () => {
 
@@ -16,20 +16,22 @@ describe('Async Error Handling - Error Surface Validation', () => {
     describe('async errors surface correctly', () => {
 
         // This test demonstrates that async errors are properly caught
-        // The test SHOULD fail, proving error propagation works
-        xit('async throw is caught by Jasmine (this test should fail)', async () => {
-            await iit('case $index: value $value', async (testCase: any) => {
-                await Promise.resolve(); // Simulate async work
-                throw new Error(`Intentional error for value ${testCase.value}`);
-            }).where([{value: 1}, {value: 2}, {value: 3}]);
-        });
+        // We wrap in expectAsync().toBeRejectedWithError() to verify error propagation
+        iit('async throw is caught by Jasmine - value $value', async (testCase: any) => {
+            await expectAsync(
+                (async () => {
+                    await Promise.resolve(); // Simulate async work
+                    throw new Error(`Intentional error for value ${testCase.value}`);
+                })()
+            ).toBeRejectedWithError(`Intentional error for value ${testCase.value}`);
+        }).where([{value: 1}, {value: 2}, {value: 3}]);
 
         // This test proves rejected promises are surfaced
-        xit('rejected promise is caught by Jasmine (this test should fail)', async () => {
-            await iit('case $index: value $value', async (testCase: any) => {
-                return Promise.reject(new Error(`Rejection for value ${testCase.value}`));
-            }).where([{value: 1}, {value: 2}]);
-        });
+        iit('rejected promise is caught by Jasmine - value $value', async (testCase: any) => {
+            await expectAsync(
+                Promise.reject(new Error(`Rejection for value ${testCase.value}`))
+            ).toBeRejectedWithError(`Rejection for value ${testCase.value}`);
+        }).where([{value: 1}, {value: 2}]);
     });
 
     // ===========================================
@@ -67,9 +69,13 @@ describe('Async Error Handling - Error Surface Validation', () => {
         // message includes enough context to identify which test case failed
 
         // Demonstrates that Jasmine's error reporting shows the formatted test name
-        xiit('failing async test for $name shows correct context (should fail)', async (testCase: any) => {
-            await Promise.resolve();
-            throw new Error(`Failed for ${testCase.name} - error should show test case context`);
+        iit('failing async test for $name shows correct context', async (testCase: any) => {
+            await expectAsync(
+                (async () => {
+                    await Promise.resolve();
+                    throw new Error(`Failed for ${testCase.name} - error should show test case context`);
+                })()
+            ).toBeRejectedWithError(`Failed for ${testCase.name} - error should show test case context`);
         }).where([
             {name: 'Eleanor'},
             {name: 'Winston'},

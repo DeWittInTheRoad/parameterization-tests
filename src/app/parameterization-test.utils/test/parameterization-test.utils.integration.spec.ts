@@ -202,6 +202,16 @@ describe('Parameterized Testing Utility - Integration', () => {
                 this.localValue = `${tc.feature}-modified`;
                 expect(this.localValue).toContain(tc.feature);
             });
+
+            // Nested iit inside idescribe
+            iit('should work with nested iit for $status', (nestedTc: any) => {
+                expect(tc.feature).toBeDefined();
+                expect(nestedTc.status).toBeDefined();
+                expect(['active', 'inactive']).toContain(nestedTc.status);
+            }).where([
+                { status: 'active' },
+                { status: 'inactive' }
+            ]);
         }).where([
             { feature: 'authentication' },
             { feature: 'authorization' }
