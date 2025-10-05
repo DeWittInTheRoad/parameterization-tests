@@ -107,6 +107,21 @@ iit('email: $company.employees[0].email', (tc) => {
 // Output: "email: eleanor@example.com"
 ```
 
+**Property Resolution:**
+- **Property exists but is `undefined`** → Displays `"undefined"` in test name
+- **Property doesn't exist** → Placeholder unchanged (helps catch typos!)
+
+```typescript
+iit('age: $user.age, email: $user.email', (tc) => {
+  expect(tc.user.age).toBeUndefined();
+}).where([
+  { user: { age: undefined } }  // age exists, email doesn't
+]);
+// Output: "age: undefined, email: $user.email"
+//              ^^^^^^^^^^^        ^^^^^^^^^^^^^^
+//              Found              Not found - check your data!
+```
+
 **Note:** Placeholders always use nested property access. Property names with literal dots (e.g., `{"user.name": "value"}`) are not supported - restructure your test data to use proper nesting instead.
 
 ## Table Format
