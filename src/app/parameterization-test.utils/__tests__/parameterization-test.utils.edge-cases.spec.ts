@@ -3,7 +3,7 @@
  * Tests special JavaScript values: circular objects, undefined, null, Dates, BigInt, long arrays
  */
 
-import { iit, idescribe } from './parameterization-test.utils';
+import { iit, idescribe } from '../parameterization-test.utils';
 
 describe('Edge Cases: Special JavaScript Values', () => {
   describe('Circular Objects', () => {

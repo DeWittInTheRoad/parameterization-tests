@@ -5,7 +5,7 @@
  * are properly preserved and surfaced by Jasmine, not swallowed by our wrapper.
  */
 
-import { iit, xiit } from './parameterization-test.utils';
+import { iit, xiit } from '../parameterization-test.utils';
 
 describe('Async Error Handling - Error Surface Validation', () => {
 

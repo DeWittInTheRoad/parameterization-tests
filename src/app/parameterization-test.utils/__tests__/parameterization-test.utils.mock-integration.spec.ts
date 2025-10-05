@@ -8,7 +8,7 @@
  * these tests mock Jasmine to verify what data is passed and how errors are handled.
  */
 
-import { createParameterizedRunner } from './core/create-parameterized-runner';
+import { createParameterizedRunner } from '../runner/create-parameterized-runner';
 
 describe('Parameterized Testing Utility - Mock Integration', () => {
 

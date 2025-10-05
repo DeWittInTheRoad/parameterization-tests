@@ -3,7 +3,7 @@
  * @module parameterized-testing/formatters/normalize-table-format
  */
 
-import type { TableFormat } from '../core/types';
+import type { TableFormat } from '../runner/types';
 
 /**
  * Converts table format (headers + rows) to object format

@@ -15,7 +15,7 @@
  * ✅ Success/failure counts are accurate per test case
  */
 
-import { iit, idescribe, xiit } from './parameterization-test.utils';
+import { iit, idescribe, xiit } from '../parameterization-test.utils';
 
 describe('Karma Reporter Integration', () => {
 

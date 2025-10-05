@@ -2,7 +2,7 @@
  * Unit Tests for Object Consistency Validator
  */
 
-import { validateObjectConsistency } from './validate-object-consistency';
+import { validateObjectConsistency } from '../formatters/validate-object-consistency';
 
 describe('validateObjectConsistency', () => {
 

@@ -22,7 +22,7 @@
  * - Memory efficient: All tests complete without memory issues
  */
 
-import { iit, idescribe } from './parameterization-test.utils';
+import { iit, idescribe } from '../parameterization-test.utils';
 
 describe('Performance - Large Datasets', () => {
 

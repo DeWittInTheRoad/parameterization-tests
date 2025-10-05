@@ -5,7 +5,7 @@
  * beforeEach/afterEach hooks and maintain proper test isolation.
  */
 
-import { iit, idescribe } from './parameterization-test.utils';
+import { iit, idescribe } from '../parameterization-test.utils';
 
 describe('Test Isolation - beforeEach/afterEach Integration', () => {
 

@@ -3,8 +3,8 @@
  * @module parameterized-testing/formatters/detect-data-format
  */
 
-import type { TestSuite, DataFormatType } from '../core/types';
-import { DataFormat } from '../core/types';
+import type { TestSuite, DataFormatType } from '../runner/types';
+import { DataFormat } from '../runner/types';
 
 /**
  * Detects the format of test case data by examining the first element

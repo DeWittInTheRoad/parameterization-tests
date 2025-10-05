@@ -12,13 +12,13 @@
  */
 
 // Import types
-import type { TestFunction, DescribeFunction } from './core/types';
+import type { TestFunction, DescribeFunction } from './runner/types';
 
-// Import core utilities
-import { createParameterizedRunner } from './core/create-parameterized-runner';
+// Import runner utilities
+import { createParameterizedRunner } from './runner/create-parameterized-runner';
 
 // Re-export constants
-export { DataFormat } from './core/types';
+export { DataFormat } from './runner/types';
 
 /**
  * Parameterized test. Use .where() to provide test data.

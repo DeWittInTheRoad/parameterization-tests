@@ -5,7 +5,7 @@
  * with Karma/Jasmine. Test names can be verified in the Karma output.
  */
 
-import { iit, idescribe, fiit, fidescribe } from './parameterization-test.utils';
+import { iit, idescribe, fiit, fidescribe } from '../parameterization-test.utils';
 
 describe('Parameterized Testing Utility - Integration', () => {
 
