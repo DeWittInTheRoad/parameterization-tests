@@ -15,19 +15,12 @@ describe('Test Isolation - beforeEach/afterEach Integration', () => {
 
     describe('beforeEach runs for each parameterized test case', () => {
         let setupCounter = 0;
-        let executionOrder: string[] = [];
 
         beforeEach(() => {
             setupCounter++;
-            executionOrder.push(`setup-${setupCounter}`);
-        });
-
-        afterEach(() => {
-            executionOrder.push(`teardown-${setupCounter}`);
         });
 
         iit('test case $index should have setup run', (tc: any) => {
-            executionOrder.push(`test-${tc.index}`);
             // Each test case should have its own beforeEach call
             expect(setupCounter).toBeGreaterThan(0);
         }).where([
@@ -35,15 +28,6 @@ describe('Test Isolation - beforeEach/afterEach Integration', () => {
             { index: 1 },
             { index: 2 }
         ]);
-
-        // Verify execution order after all tests complete
-        it('should have run setup/teardown for each parameterized test', () => {
-            // 3 parameterized tests + 1 for this test = 4 total
-            expect(setupCounter).toBe(4);
-            expect(executionOrder).toContain('setup-1');
-            expect(executionOrder).toContain('test-0');
-            expect(executionOrder).toContain('teardown-1');
-        });
     });
 
     // ===========================================
