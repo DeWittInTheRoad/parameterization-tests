@@ -126,44 +126,72 @@ describe('Parameterization Utility - Unit Tests', () => {
             expect(result).toBe('Alice $age');
         });
 
-        it('should handle property names with regex special characters', () => {
-            const result = formatObjectTestName('test $a.b and $c[0]', { 'a.b': 'value1', 'c[0]': 'value2' }, 0);
-            expect(result).toBe('test value1 and value2');
+        // ===========================================
+        // NESTED PROPERTY ACCESS
+        // ===========================================
+
+        it('should access nested object properties', () => {
+            const result = formatObjectTestName('user: $user.name', { user: { name: 'Alice' } }, 0);
+            expect(result).toBe('user: Alice');
         });
 
-        it('should handle property names with all regex metacharacters', () => {
-            const result = formatObjectTestName('$a*b $c+d $e?f', { 'a*b': '1', 'c+d': '2', 'e?f': '3' }, 0);
-            expect(result).toBe('1 2 3');
+        it('should access deeply nested properties', () => {
+            const result = formatObjectTestName('$data.user.profile.name', {
+                data: { user: { profile: { name: 'Bob' } } }
+            }, 0);
+            expect(result).toBe('Bob');
         });
 
-        it('should handle deeply nested dots in property names', () => {
-            const result = formatObjectTestName('$a.b.c.d $x.y.z', { 'a.b.c.d': 'deep', 'x.y.z': 'nested' }, 0);
-            expect(result).toBe('deep nested');
+        it('should access array elements with bracket notation', () => {
+            const result = formatObjectTestName('first: $items[0]', { items: ['apple', 'banana'] }, 0);
+            expect(result).toBe('first: apple');
         });
 
-        it('should handle multiple bracket notations in property names', () => {
-            const result = formatObjectTestName('$arr[0][1] $obj[key][id]', { 'arr[0][1]': 'val1', 'obj[key][id]': 'val2' }, 0);
-            expect(result).toBe('val1 val2');
+        it('should access nested arrays', () => {
+            const result = formatObjectTestName('$matrix[0][1]', { matrix: [[1, 2], [3, 4]] }, 0);
+            expect(result).toBe('2');
         });
 
-        it('should handle mixed dots and brackets in property names', () => {
-            const result = formatObjectTestName('$user.items[0] $data[key].value', { 'user.items[0]': 'item', 'data[key].value': 'result' }, 0);
-            expect(result).toBe('item result');
+        it('should combine dots and brackets', () => {
+            const result = formatObjectTestName('$users[0].email', {
+                users: [{ email: 'alice@example.com' }, { email: 'bob@example.com' }]
+            }, 0);
+            expect(result).toBe('alice@example.com');
         });
 
-        it('should handle trailing dots in property names', () => {
-            const result = formatObjectTestName('$prop. $name.', { 'prop.': 'val', 'name.': 'test' }, 0);
-            expect(result).toBe('val test');
+        it('should handle complex nested paths', () => {
+            const result = formatObjectTestName('$company.employees[1].address.city', {
+                company: {
+                    employees: [
+                        { address: { city: 'NYC' } },
+                        { address: { city: 'LA' } }
+                    ]
+                }
+            }, 0);
+            expect(result).toBe('LA');
         });
 
-        it('should handle empty brackets in property names', () => {
-            const result = formatObjectTestName('$arr[] $obj[]', { 'arr[]': 'empty1', 'obj[]': 'empty2' }, 0);
-            expect(result).toBe('empty1 empty2');
+        it('should support backward compatibility with literal property names', () => {
+            // If a literal property exists, it takes precedence
+            const result = formatObjectTestName('$user.name', { 'user.name': 'Literal' }, 0);
+            expect(result).toBe('Literal');
         });
 
-        it('should handle complex special characters with dots/brackets', () => {
-            const result = formatObjectTestName('$a.b[c]*.d $x[y].z+w', { 'a.b[c]*.d': '1', 'x[y].z+w': '2' }, 0);
-            expect(result).toBe('1 2');
+        it('should handle missing nested properties gracefully', () => {
+            const result = formatObjectTestName('$user.missing.property', { user: {} }, 0);
+            expect(result).toBe('$user.missing.property'); // Unchanged
+        });
+
+        it('should handle null/undefined in path', () => {
+            const result = formatObjectTestName('$user.name', { user: null }, 0);
+            expect(result).toBe('$user.name'); // Unchanged
+        });
+
+        it('should handle multiple nested placeholders', () => {
+            const result = formatObjectTestName('$user.name is $user.age years old', {
+                user: { name: 'Alice', age: 30 }
+            }, 0);
+            expect(result).toBe('Alice is 30 years old');
         });
     });
 

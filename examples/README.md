@@ -72,30 +72,42 @@ iit('test $index: $name', (tc) => {
 //         "test 1: second"
 ```
 
-### Complex Property Names
+### Nested Property Access
 
-Dots and brackets are treated as **literal property names**, not nested access:
+Placeholders support **nested object access** using dot notation and array bracket notation:
 
 ```typescript
-iit('test $user.name and $items[0]', (tc) => {
-  expect(tc['user.name']).toBe('Alice');
-  expect(tc['items[0]']).toBe('apple');
+// Nested objects
+iit('user: $user.name ($user.age years old)', (tc) => {
+  expect(tc.user.name).toBe('Alice');
+  expect(tc.user.age).toBe(30);
 }).where([
-  { 'user.name': 'Alice', 'items[0]': 'apple' }
+  { user: { name: 'Alice', age: 30 } },
+  { user: { name: 'Bob', age: 25 } }
 ]);
-// Output: "test Alice and apple"
+// Output: "user: Alice (30 years old)"
+//         "user: Bob (25 years old)"
+
+// Arrays
+iit('first item: $items[0]', (tc) => {
+  expect(tc.items[0]).toBe('apple');
+}).where([
+  { items: ['apple', 'banana'] },
+  { items: ['cherry', 'date'] }
+]);
+// Output: "first item: apple"
+//         "first item: cherry"
+
+// Combined nested paths
+iit('email: $company.employees[0].email', (tc) => {
+  expect(tc.company.employees[0].email).toBeDefined();
+}).where([
+  { company: { employees: [{ email: 'alice@example.com' }] } }
+]);
+// Output: "email: alice@example.com"
 ```
 
-**Design rationale:** This keeps the implementation simple and predictable. Test data should be flat for readability. If you have nested objects, flatten them before passing to `.where()`:
-
-```typescript
-// Instead of nested access
-const user = { name: 'Alice', address: { city: 'NYC' } };
-
-// Flatten your data
-iit('user $name from $city', (tc) => { /* ... */ })
-  .where([{ name: user.name, city: user.address.city }]);
-```
+**Backward compatibility:** Literal property names still work if they exist in the object. If you have a property literally named `"user.name"`, it takes precedence over nested access.
 
 ## Table Format
 
