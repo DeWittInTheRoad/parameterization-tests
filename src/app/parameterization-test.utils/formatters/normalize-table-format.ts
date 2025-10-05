@@ -21,12 +21,12 @@ import type { TableFormat } from '../core/types';
  * ```ts
  * normalizeTableFormat([
  *   ['name', 'age'],
- *   ['Alice', 30],
- *   ['Bob', 25]
+ *   ['Eleanor', 30],
+ *   ['Winston', 25]
  * ])
  * // returns [
- * //   {name: 'Alice', age: 30},
- * //   {name: 'Bob', age: 25}
+ * //   {name: 'Eleanor', age: 30},
+ * //   {name: 'Winston', age: 25}
  * // ]
  * ```
  */

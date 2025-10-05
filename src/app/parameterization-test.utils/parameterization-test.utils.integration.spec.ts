@@ -168,4 +168,43 @@ describe('Parameterized Testing Utility - Integration', () => {
             { value: 3 }
         ]);
     });
+
+    // ===========================================
+    // THIS CONTEXT BINDING
+    // ===========================================
+
+    describe('this context binding', () => {
+        beforeEach(function(this: any) {
+            this.sharedValue = 'shared-from-beforeEach';
+            this.counter = 0;
+        });
+
+        // ✅ Regular function syntax preserves this context
+        iit('should preserve this context for $value', function(this: any, tc: any) {
+            expect(this.sharedValue).toBe('shared-from-beforeEach');
+            expect(tc.value).toBeDefined();
+            this.counter++;
+            expect(this.counter).toBeGreaterThan(0);
+        }).where([
+            { value: 1 },
+            { value: 2 },
+            { value: 3 }
+        ]);
+
+        // ✅ Can also work with idescribe
+        idescribe('Testing $feature with this context', function(this: any, tc: any) {
+            it('should access this from beforeEach', function(this: any) {
+                expect(this.sharedValue).toBe('shared-from-beforeEach');
+                expect(tc.feature).toBeDefined();
+            });
+
+            it('should modify this within test', function(this: any) {
+                this.localValue = `${tc.feature}-modified`;
+                expect(this.localValue).toContain(tc.feature);
+            });
+        }).where([
+            { feature: 'authentication' },
+            { feature: 'authorization' }
+        ]);
+    });
 });

@@ -79,8 +79,8 @@ describe('validateObjectConsistency', () => {
     it('should show expected and actual keys in error', () => {
         expect(() => {
             validateObjectConsistency([
-                {name: 'Alice', age: 30, active: true},
-                {name: 'Bob', age: 25}  // Missing 'active'
+                {name: 'Eleanor', age: 30, active: true},
+                {name: 'Winston', age: 25}  // Missing 'active'
             ], 'test $name');
         }).toThrowError(/Expected keys: \['name', 'age', 'active'\]/);
     });
@@ -106,8 +106,8 @@ describe('validateObjectConsistency', () => {
     it('should handle real-world test data pattern', () => {
         expect(() => {
             validateObjectConsistency([
-                {user: 'alice', role: 'admin', active: true},
-                {user: 'bob', role: 'user', active: false},
+                {user: 'Eleanor', role: 'admin', active: true},
+                {user: 'Winston', role: 'user', active: false},
                 {user: 'charlie', role: 'user'}  // Missing 'active' - common mistake!
             ], 'test $user with role $role');
         }).toThrowError(/Test case 2 has missing: 'active'/);
@@ -142,8 +142,8 @@ describe('validateObjectConsistency', () => {
         it('should suggest typo fix when keys are similar', () => {
             expect(() => {
                 validateObjectConsistency([
-                    {name: 'Alice', age: 30},
-                    {name: 'Bob', agee: 25}  // Typo: 'agee' instead of 'age'
+                    {name: 'Eleanor', age: 30},
+                    {name: 'Winston', agee: 25}  // Typo: 'agee' instead of 'age'
                 ], 'test');
             }).toThrowError(/Did you mean 'age' instead of 'agee'/);
         });
@@ -151,8 +151,8 @@ describe('validateObjectConsistency', () => {
         it('should suggest adding missing properties', () => {
             expect(() => {
                 validateObjectConsistency([
-                    {name: 'Alice', age: 30},
-                    {name: 'Bob'}  // Missing 'age'
+                    {name: 'Eleanor', age: 30},
+                    {name: 'Winston'}  // Missing 'age'
                 ], 'test');
             }).toThrowError(/Add property 'age' to this test case/);
         });
@@ -160,8 +160,8 @@ describe('validateObjectConsistency', () => {
         it('should suggest adding multiple missing properties', () => {
             expect(() => {
                 validateObjectConsistency([
-                    {name: 'Alice', age: 30, active: true},
-                    {name: 'Bob'}  // Missing 'age' and 'active'
+                    {name: 'Eleanor', age: 30, active: true},
+                    {name: 'Winston'}  // Missing 'age' and 'active'
                 ], 'test');
             }).toThrowError(/Add properties 'age', 'active' to this test case/);
         });
@@ -169,8 +169,8 @@ describe('validateObjectConsistency', () => {
         it('should suggest removing unexpected properties', () => {
             expect(() => {
                 validateObjectConsistency([
-                    {name: 'Alice'},
-                    {name: 'Bob', extra: 'data'}  // Unexpected 'extra'
+                    {name: 'Eleanor'},
+                    {name: 'Winston', extra: 'data'}  // Unexpected 'extra'
                 ], 'test');
             }).toThrowError(/Remove property 'extra' from this test case/);
         });
@@ -178,8 +178,8 @@ describe('validateObjectConsistency', () => {
         it('should suggest removing multiple unexpected properties', () => {
             expect(() => {
                 validateObjectConsistency([
-                    {name: 'Alice'},
-                    {name: 'Bob', x: 1, y: 2}  // Unexpected 'x' and 'y'
+                    {name: 'Eleanor'},
+                    {name: 'Winston', x: 1, y: 2}  // Unexpected 'x' and 'y'
                 ], 'test');
             }).toThrowError(/Remove properties 'x', 'y' from this test case/);
         });
@@ -187,8 +187,8 @@ describe('validateObjectConsistency', () => {
         it('should prioritize typo suggestions over generic add/remove', () => {
             expect(() => {
                 validateObjectConsistency([
-                    {username: 'alice', password: 'secret'},
-                    {usrname: 'bob', password: 'pass'}  // Typo: 'usrname'
+                    {username: 'Eleanor', password: 'secret'},
+                    {usrname: 'Winston', password: 'pass'}  // Typo: 'usrname'
                 ], 'test');
             }).toThrowError(/Did you mean 'username' instead of 'usrname'/);
         });
@@ -196,8 +196,8 @@ describe('validateObjectConsistency', () => {
         it('should detect multiple typos', () => {
             try {
                 validateObjectConsistency([
-                    {first: 'Alice', last: 'Smith'},
-                    {frist: 'Bob', lst: 'Jones'}  // Two typos
+                    {first: 'Eleanor', last: 'Smith'},
+                    {frist: 'Winston', lst: 'Jones'}  // Two typos
                 ], 'test');
                 fail('Should have thrown');
             } catch (error: any) {
@@ -209,8 +209,8 @@ describe('validateObjectConsistency', () => {
         it('should not suggest when keys are completely different', () => {
             expect(() => {
                 validateObjectConsistency([
-                    {name: 'Alice', age: 30},
-                    {name: 'Bob', role: 'admin'}  // 'role' is not similar to 'age'
+                    {name: 'Eleanor', age: 30},
+                    {name: 'Winston', role: 'admin'}  // 'role' is not similar to 'age'
                 ], 'test');
             }).toThrowError(/Add property 'age' to this test case/);
         });

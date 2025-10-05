@@ -7,7 +7,7 @@
  * @example
  * ```ts
  * iit('test $name', (tc) => expect(tc.name).toBeDefined())
- *   .where([{name: 'Alice'}, {name: 'Bob'}]);
+ *   .where([{name: 'Eleanor'}, {name: 'Winston'}]);
  * ```
  */
 
@@ -25,8 +25,8 @@ export { DataFormat } from './core/types';
  *
  * @example
  * ```ts
- * iit('test $name', (tc) => expect(tc.name).toBe('Alice'))
- *   .where([{name: 'Alice'}, {name: 'Bob'}]);
+ * iit('test $name', (tc) => expect(tc.name).toBe('Eleanor'))
+ *   .where([{name: 'Eleanor'}, {name: 'Winston'}]);
  * ```
  */
 export const iit = createParameterizedRunner<TestFunction>(it);

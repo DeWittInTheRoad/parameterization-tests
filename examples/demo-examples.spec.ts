@@ -65,12 +65,12 @@ describe('Parameterized Testing - Feature Demonstration', () => {
         iit('status is $status for user $name', (testCase: any) => {
             expect(['active', 'inactive']).toContain(testCase.status);
         }).where([
-            { status: 'active', name: 'Alice' },
-            { status: 'inactive', name: 'Bob' }
+            { status: 'active', name: 'Eleanor' },
+            { status: 'inactive', name: 'Winston' }
         ]);
         // ✅ Karma Output:
-        // "status is active for user Alice"
-        // "status is inactive for user Bob"
+        // "status is active for user Eleanor"
+        // "status is inactive for user Winston"
     });
 
     // ===========================================

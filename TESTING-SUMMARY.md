@@ -116,8 +116,8 @@ This document summarizes the complete test coverage for the Angular/Jasmine para
 ## Features Validated
 
 ### Core Functionality ✅
-- [x] Object format: `{name: 'Alice', age: 30}`
-- [x] Table format: `[['name', 'age'], ['Alice', 30]]`
+- [x] Object format: `{name: 'Eleanor', age: 30}`
+- [x] Table format: `[['name', 'age'], ['Eleanor', 30]]`
 - [x] Placeholder replacement: `$propertyName`, `$index`
 - [x] Two-pass $index replacement (no collision)
 - [x] Literal property names (dots/brackets are literal, not nested)

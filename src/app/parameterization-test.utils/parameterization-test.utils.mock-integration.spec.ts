@@ -197,8 +197,8 @@ describe('Parameterized Testing Utility - Mock Integration', () => {
             const testFn = jasmine.createSpy('testFn');
 
             const complexData = [
-                {user: {name: 'Alice', age: 30}, config: {debug: true}},
-                {user: {name: 'Bob', age: 25}, config: {debug: false}}
+                {user: {name: 'Eleanor', age: 30}, config: {debug: true}},
+                {user: {name: 'Winston', age: 25}, config: {debug: false}}
             ];
 
             const runner = createParameterizedRunner(mockJasmineFn);

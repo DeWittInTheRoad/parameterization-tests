@@ -36,8 +36,8 @@ describe('Karma Reporter Integration', () => {
             expect(tc.name).toBeDefined();
             expect(tc.age).toBeGreaterThan(0);
         }).where([
-            { name: 'Alice', age: 30 },
-            { name: 'Bob', age: 25 },
+            { name: 'Eleanor', age: 30 },
+            { name: 'Winston', age: 25 },
             { name: 'Charlie', age: 35 }
         ]);
 
@@ -69,12 +69,12 @@ describe('Karma Reporter Integration', () => {
         ]);
 
         xiit('DEMO: multiple failures $name', (tc: any) => {
-            if (tc.name === 'Bob' || tc.name === 'Dave') {
+            if (tc.name === 'Winston' || tc.name === 'Dave') {
                 expect(1).toBe(2); // Intentional failure
             }
         }).where([
-            { name: 'Alice' },  // Pass
-            { name: 'Bob' },    // Fail
+            { name: 'Eleanor' },  // Pass
+            { name: 'Winston' },    // Fail
             { name: 'Charlie' }, // Pass
             { name: 'Dave' }    // Fail
         ]);

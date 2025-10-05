@@ -50,8 +50,8 @@ describe('Parameterization Utility - Unit Tests', () => {
 
     describe('formatObjectTestName', () => {
         it('should replace $property with object property value', () => {
-            const result = formatObjectTestName('test $name', { name: 'Alice' }, 0);
-            expect(result).toBe('test Alice');
+            const result = formatObjectTestName('test $name', { name: 'Eleanor' }, 0);
+            expect(result).toBe('test Eleanor');
         });
 
         it('should replace multiple $property placeholders', () => {
@@ -83,8 +83,8 @@ describe('Parameterization Utility - Unit Tests', () => {
         });
 
         it('should handle same property used multiple times', () => {
-            const result = formatObjectTestName('$name is $name', { name: 'Bob' }, 0);
-            expect(result).toBe('Bob is Bob');
+            const result = formatObjectTestName('$name is $name', { name: 'Winston' }, 0);
+            expect(result).toBe('Winston is Winston');
         });
 
         it('should convert values to strings', () => {
@@ -122,8 +122,8 @@ describe('Parameterization Utility - Unit Tests', () => {
         });
 
         it('should leave unreplaced placeholders as-is', () => {
-            const result = formatObjectTestName('$name $age', { name: 'Alice' }, 0);
-            expect(result).toBe('Alice $age');
+            const result = formatObjectTestName('$name $age', { name: 'Eleanor' }, 0);
+            expect(result).toBe('Eleanor $age');
         });
 
         // ===========================================
@@ -131,15 +131,15 @@ describe('Parameterization Utility - Unit Tests', () => {
         // ===========================================
 
         it('should access nested object properties', () => {
-            const result = formatObjectTestName('user: $user.name', { user: { name: 'Alice' } }, 0);
-            expect(result).toBe('user: Alice');
+            const result = formatObjectTestName('user: $user.name', { user: { name: 'Eleanor' } }, 0);
+            expect(result).toBe('user: Eleanor');
         });
 
         it('should access deeply nested properties', () => {
             const result = formatObjectTestName('$data.user.profile.name', {
-                data: { user: { profile: { name: 'Bob' } } }
+                data: { user: { profile: { name: 'Winston' } } }
             }, 0);
-            expect(result).toBe('Bob');
+            expect(result).toBe('Winston');
         });
 
         it('should access array elements with bracket notation', () => {
@@ -154,9 +154,9 @@ describe('Parameterization Utility - Unit Tests', () => {
 
         it('should combine dots and brackets', () => {
             const result = formatObjectTestName('$users[0].email', {
-                users: [{ email: 'alice@example.com' }, { email: 'bob@example.com' }]
+                users: [{ email: 'eleanor@example.com' }, { email: 'winston@example.com' }]
             }, 0);
-            expect(result).toBe('alice@example.com');
+            expect(result).toBe('eleanor@example.com');
         });
 
         it('should handle complex nested paths', () => {
@@ -189,9 +189,9 @@ describe('Parameterization Utility - Unit Tests', () => {
 
         it('should handle multiple nested placeholders', () => {
             const result = formatObjectTestName('$user.name is $user.age years old', {
-                user: { name: 'Alice', age: 30 }
+                user: { name: 'Eleanor', age: 30 }
             }, 0);
-            expect(result).toBe('Alice is 30 years old');
+            expect(result).toBe('Eleanor is 30 years old');
         });
     });
 
@@ -203,13 +203,13 @@ describe('Parameterization Utility - Unit Tests', () => {
         it('should convert table format to object array', () => {
             const result = normalizeTableFormat([
                 ['name', 'age'],
-                ['Alice', 30],
-                ['Bob', 25]
+                ['Eleanor', 30],
+                ['Winston', 25]
             ]);
 
             expect(result).toEqual([
-                { name: 'Alice', age: 30 },
-                { name: 'Bob', age: 25 }
+                { name: 'Eleanor', age: 30 },
+                { name: 'Winston', age: 25 }
             ]);
         });
 
@@ -244,13 +244,13 @@ describe('Parameterization Utility - Unit Tests', () => {
         it('should handle mixed data types', () => {
             const result = normalizeTableFormat([
                 ['name', 'active', 'count'],
-                ['Alice', true, 5],
-                ['Bob', false, 0]
+                ['Eleanor', true, 5],
+                ['Winston', false, 0]
             ]);
 
             expect(result).toEqual([
-                { name: 'Alice', active: true, count: 5 },
-                { name: 'Bob', active: false, count: 0 }
+                { name: 'Eleanor', active: true, count: 5 },
+                { name: 'Winston', active: false, count: 0 }
             ]);
         });
 

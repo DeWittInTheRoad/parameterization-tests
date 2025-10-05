@@ -71,8 +71,8 @@ describe('Async Error Handling - Error Surface Validation', () => {
             await Promise.resolve();
             throw new Error(`Failed for ${testCase.name} - error should show test case context`);
         }).where([
-            {name: 'Alice'},
-            {name: 'Bob'},
+            {name: 'Eleanor'},
+            {name: 'Winston'},
             {name: 'Charlie'}
         ]);
     });

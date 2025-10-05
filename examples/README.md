@@ -79,14 +79,14 @@ Placeholders support **nested object access** using dot notation and array brack
 ```typescript
 // Nested objects
 iit('user: $user.name ($user.age years old)', (tc) => {
-  expect(tc.user.name).toBe('Alice');
+  expect(tc.user.name).toBe('Eleanor');
   expect(tc.user.age).toBe(30);
 }).where([
-  { user: { name: 'Alice', age: 30 } },
-  { user: { name: 'Bob', age: 25 } }
+  { user: { name: 'Eleanor', age: 30 } },
+  { user: { name: 'Winston', age: 25 } }
 ]);
-// Output: "user: Alice (30 years old)"
-//         "user: Bob (25 years old)"
+// Output: "user: Eleanor (30 years old)"
+//         "user: Winston (25 years old)"
 
 // Arrays
 iit('first item: $items[0]', (tc) => {
@@ -102,9 +102,9 @@ iit('first item: $items[0]', (tc) => {
 iit('email: $company.employees[0].email', (tc) => {
   expect(tc.company.employees[0].email).toBeDefined();
 }).where([
-  { company: { employees: [{ email: 'alice@example.com' }] } }
+  { company: { employees: [{ email: 'eleanor@example.com' }] } }
 ]);
-// Output: "email: alice@example.com"
+// Output: "email: eleanor@example.com"
 ```
 
 **Backward compatibility:** Literal property names still work if they exist in the object. If you have a property literally named `"user.name"`, it takes precedence over nested access.
@@ -118,11 +118,11 @@ iit('$name is $age years old', (tc) => {
   expect(tc.age).toBeGreaterThan(0);
 }).where([
   ['name', 'age'],
-  ['Alice', 30],
-  ['Bob', 25]
+  ['Eleanor', 30],
+  ['Winston', 25]
 ]);
-// Output: "Alice is 30 years old"
-//         "Bob is 25 years old"
+// Output: "Eleanor is 30 years old"
+//         "Winston is 25 years old"
 ```
 
 ## Parameterized Test Suites
@@ -169,6 +169,159 @@ xidescribe('suite $id', (tc) => { /* ... */ })
   .where([{id: 2}]);
 ```
 
+## Using Jasmine's `this` Context
+
+If you need access to Jasmine's test context (e.g., `this.component` from `beforeEach`), use **regular function syntax** instead of arrow functions:
+
+```typescript
+describe('MyComponent', () => {
+  beforeEach(function(this: any) {
+    this.fixture = TestBed.createComponent(MyComponent);
+    this.component = this.fixture.componentInstance;
+  });
+
+  // ✅ Use function(this: any, tc) to access this context
+  iit('should display $name', function(this: any, tc) {
+    this.component.name = tc.name;
+    this.fixture.detectChanges();
+    expect(this.component.name).toBe(tc.name);
+  }).where([
+    { name: 'Eleanor' },
+    { name: 'Winston' }
+  ]);
+
+  // ✅ Or use arrow function without this context
+  iit('should validate $name', (tc) => {
+    const fixture = TestBed.createComponent(MyComponent);
+    const component = fixture.componentInstance;
+    component.name = tc.name;
+    expect(component.name).toBe(tc.name);
+  }).where([
+    { name: 'Eleanor' },
+    { name: 'Winston' }
+  ]);
+});
+```
+
+**Note:** Arrow functions (`=>`) don't have their own `this` context - they inherit from the enclosing lexical scope. Use regular `function(this: any, tc)` syntax when you need access to Jasmine's `this` binding set by `beforeEach`. The `this: any` type annotation is required for TypeScript strict mode.
+
+## Asynchronous Tests
+
+Parameterized tests fully support `async/await` for asynchronous operations. Use the modern `async/await` pattern instead of the older `done()` callback style.
+
+### Basic Async/Await
+
+```typescript
+// ✅ Recommended: async/await pattern
+iit('should fetch user $userId', async (tc) => {
+  const user = await userService.getUser(tc.userId);
+  expect(user.id).toBe(tc.userId);
+  expect(user.name).toBe(tc.expectedName);
+}).where([
+  { userId: 1, expectedName: 'Eleanor' },
+  { userId: 2, expectedName: 'Winston' }
+]);
+```
+
+### Multiple Awaits
+
+```typescript
+iit('should process $operation asynchronously', async (tc) => {
+  const result1 = await apiService.step1(tc.input);
+  const result2 = await apiService.step2(result1);
+  const final = await apiService.step3(result2);
+
+  expect(final).toBe(tc.expected);
+}).where([
+  { operation: 'create', input: 'data1', expected: 'result1' },
+  { operation: 'update', input: 'data2', expected: 'result2' }
+]);
+```
+
+### Promise.all for Parallel Operations
+
+```typescript
+iit('should handle parallel requests for $scenario', async (tc) => {
+  const [user, posts, comments] = await Promise.all([
+    userService.getUser(tc.userId),
+    postService.getPosts(tc.userId),
+    commentService.getComments(tc.userId)
+  ]);
+
+  expect(user.id).toBe(tc.userId);
+  expect(posts.length).toBeGreaterThan(0);
+  expect(comments.length).toBeGreaterThan(0);
+}).where([
+  { scenario: 'active user', userId: 1 },
+  { scenario: 'new user', userId: 2 }
+]);
+```
+
+### Angular's fakeAsync and tick
+
+```typescript
+import { fakeAsync, tick } from '@angular/core/testing';
+
+// Note: Cannot use async/await with fakeAsync - use regular function
+iit('should debounce $input after $delay ms', fakeAsync((tc) => {
+  let result: string | undefined;
+
+  component.search(tc.input).subscribe(value => result = value);
+  tick(tc.delay);
+
+  expect(result).toBe(tc.expected);
+})).where([
+  { input: 'test1', delay: 300, expected: 'result1' },
+  { input: 'test2', delay: 500, expected: 'result2' }
+]);
+```
+
+### Error Handling with Async
+
+```typescript
+iit('should reject invalid $input', async (tc) => {
+  await expectAsync(
+    apiService.validate(tc.input)
+  ).toBeRejectedWithError(tc.expectedError);
+}).where([
+  { input: '', expectedError: 'Input cannot be empty' },
+  { input: 'invalid', expectedError: 'Invalid format' }
+]);
+
+// Or with try/catch
+iit('should throw error for $input', async (tc) => {
+  try {
+    await apiService.process(tc.input);
+    fail('Expected error to be thrown');
+  } catch (error: any) {
+    expect(error.message).toBe(tc.expectedError);
+  }
+}).where([
+  { input: null, expectedError: 'Null input not allowed' },
+  { input: undefined, expectedError: 'Undefined input not allowed' }
+]);
+```
+
+### Timeouts for Slow Operations
+
+```typescript
+iit('should complete $operation within timeout', async (tc) => {
+  const startTime = Date.now();
+  await slowService.performOperation(tc.operation);
+  const duration = Date.now() - startTime;
+
+  expect(duration).toBeLessThan(tc.maxDuration);
+}).where([
+  { operation: 'fast-op', maxDuration: 100 },
+  { operation: 'slow-op', maxDuration: 1000 }
+]);
+```
+
+**Important Notes:**
+- ✅ **Use `async/await`** - Modern, clean, and works perfectly with parameterized tests
+- ❌ **Don't use `done()` callback** - Not supported (use `async/await` instead)
+- ⚠️ **`fakeAsync` incompatibility** - Cannot combine `async/await` with `fakeAsync`/`tick` - use regular functions with `fakeAsync`
+
 ## Advanced Examples
 
 ### Multiple Placeholders
@@ -178,8 +331,8 @@ iit('user $name with email $email has role $role', (tc) => {
   expect(tc.email).toContain('@');
   expect(['admin', 'user']).toContain(tc.role);
 }).where([
-  { name: 'Alice', email: 'alice@example.com', role: 'admin' },
-  { name: 'Bob', email: 'bob@example.com', role: 'user' }
+  { name: 'Eleanor', email: 'eleanor@example.com', role: 'admin' },
+  { name: 'Winston', email: 'winston@example.com', role: 'user' }
 ]);
 ```
 

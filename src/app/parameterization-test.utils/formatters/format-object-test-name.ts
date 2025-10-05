@@ -12,7 +12,7 @@
  *
  * @example
  * ```ts
- * resolvePropertyPath({user: {name: 'Alice'}}, 'user.name') // 'Alice'
+ * resolvePropertyPath({user: {name: 'Eleanor'}}, 'user.name') // 'Eleanor'
  * resolvePropertyPath({items: ['a', 'b']}, 'items[0]') // 'a'
  * resolvePropertyPath({data: {list: [{v: 1}]}}, 'data.list[0].v') // 1
  * ```
@@ -91,8 +91,8 @@ function resolvePropertyPath(obj: any, path: string): PropertyResolution {
  * formatObjectTestName('test $index: $a + $b', {a: 10, b: 20}, 0)
  * // returns 'test 0: 10 + 20'
  *
- * formatObjectTestName('user: $user.name', {user: {name: 'Alice'}}, 0)
- * // returns 'user: Alice'
+ * formatObjectTestName('user: $user.name', {user: {name: 'Eleanor'}}, 0)
+ * // returns 'user: Eleanor'
  *
  * formatObjectTestName('item: $items[0]', {items: ['first', 'second']}, 0)
  * // returns 'item: first'
