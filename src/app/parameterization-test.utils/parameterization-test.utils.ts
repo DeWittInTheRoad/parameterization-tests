@@ -6,8 +6,15 @@
  *
  * @example
  * ```ts
- * iit('test $name', (tc) => expect(tc.name).toBeDefined())
- *   .where([{name: 'Eleanor'}, {name: 'Winston'}]);
+ * // Object format
+ * iit('should add $a and $b to get $expected', (tc) => {
+ *   expect(tc.a + tc.b).toBe(tc.expected);
+ * }).where([
+ *   { a: 2, b: 3, expected: 5 },
+ *   { a: 1, b: 4, expected: 5 }
+ * ]);
+ * // Output: "should add 2 and 3 to get 5"
+ * //         "should add 1 and 4 to get 5"
  * ```
  */
 
@@ -25,8 +32,24 @@ export { DataFormat } from './runner/types';
  *
  * @example
  * ```ts
- * iit('test $name', (tc) => expect(tc.name).toBe('Eleanor'))
- *   .where([{name: 'Eleanor'}, {name: 'Winston'}]);
+ * // Object format
+ * iit('should add $a and $b to get $expected', (tc) => {
+ *   expect(tc.a + tc.b).toBe(tc.expected);
+ * }).where([
+ *   { a: 2, b: 3, expected: 5 },
+ *   { a: 1, b: 4, expected: 5 }
+ * ]);
+ * // Output: "should add 2 and 3 to get 5"
+ * //         "should add 1 and 4 to get 5"
+ *
+ * // Table format
+ * iit('should add $a and $b to get $expected', (tc) => {
+ *   expect(tc.a + tc.b).toBe(tc.expected);
+ * }).where([
+ *   ['a', 'b', 'expected'],
+ *   [2, 3, 5],
+ *   [1, 4, 5]
+ * ]);
  * ```
  */
 export const iit = createParameterizedRunner<TestFunction>(it);
@@ -36,9 +59,28 @@ export const iit = createParameterizedRunner<TestFunction>(it);
  *
  * @example
  * ```ts
- * idescribe('Testing $feature', (tc) => {
- *   it('should work', () => expect(tc.feature).toBeDefined());
- * }).where([{feature: 'login'}]);
+ * // Object format
+ * idescribe('$operation operations', (tc) => {
+ *   it('should work', () => {
+ *     expect(tc.operation).toBeDefined();
+ *   });
+ * }).where([
+ *   { operation: 'add' },
+ *   { operation: 'multiply' }
+ * ]);
+ * // Output: "add operations"
+ * //         "multiply operations"
+ *
+ * // Table format
+ * idescribe('$operation operations', (tc) => {
+ *   it('should work', () => {
+ *     expect(tc.operation).toBeDefined();
+ *   });
+ * }).where([
+ *   ['operation'],
+ *   ['add'],
+ *   ['multiply']
+ * ]);
  * ```
  */
 export const idescribe = createParameterizedRunner<DescribeFunction>(describe);
