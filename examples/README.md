@@ -86,6 +86,17 @@ iit('test $user.name and $items[0]', (tc) => {
 // Output: "test Alice and apple"
 ```
 
+**Design rationale:** This keeps the implementation simple and predictable. Test data should be flat for readability. If you have nested objects, flatten them before passing to `.where()`:
+
+```typescript
+// Instead of nested access
+const user = { name: 'Alice', address: { city: 'NYC' } };
+
+// Flatten your data
+iit('user $name from $city', (tc) => { /* ... */ })
+  .where([{ name: user.name, city: user.address.city }]);
+```
+
 ## Table Format
 
 Headers define property names, rows provide values:
