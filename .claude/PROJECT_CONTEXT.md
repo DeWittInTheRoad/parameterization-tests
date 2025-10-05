@@ -313,10 +313,6 @@ These tests are skipped to avoid failing the suite, but demonstrate that async e
 - **After:** `runner/`, `test/` directory, examples in README only
 - **Why:** Clarity, organization, avoid duplication
 
-**6. Name Changes**
-- Replaced all examples: Alice → Eleanor, Bob → Winston
-- **Why:** User preference for different example names
-
 ---
 
 ## Technical Constraints & Limitations
@@ -491,7 +487,7 @@ function findSimilarKeys(target: string, available: string[]): string[] {
 ### Commit Style
 - Descriptive commit messages
 - Include rationale for changes
-- Always include:
+- Never include:
   ```
   🤖 Generated with [Claude Code](https://claude.com/claude-code)
 
