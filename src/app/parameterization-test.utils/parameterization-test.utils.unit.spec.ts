@@ -171,10 +171,10 @@ describe('Parameterization Utility - Unit Tests', () => {
             expect(result).toBe('LA');
         });
 
-        it('should support backward compatibility with literal property names', () => {
-            // If a literal property exists, it takes precedence
+        it('should not resolve literal property names with dots', () => {
+            // Literal property names with dots are not supported - use nested access
             const result = formatObjectTestName('$user.name', { 'user.name': 'Literal' }, 0);
-            expect(result).toBe('Literal');
+            expect(result).toBe('$user.name'); // Unchanged - property not found
         });
 
         it('should handle missing nested properties gracefully', () => {

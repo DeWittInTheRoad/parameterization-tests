@@ -107,7 +107,7 @@ iit('email: $company.employees[0].email', (tc) => {
 // Output: "email: eleanor@example.com"
 ```
 
-**Backward compatibility:** Literal property names still work if they exist in the object. If you have a property literally named `"user.name"`, it takes precedence over nested access.
+**Note:** Placeholders always use nested property access. Property names with literal dots (e.g., `{"user.name": "value"}`) are not supported - restructure your test data to use proper nesting instead.
 
 ## Table Format
 

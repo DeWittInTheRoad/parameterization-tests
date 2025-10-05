@@ -33,11 +33,6 @@ interface PropertyResolution {
  * @returns Object with `found` (whether path exists) and `value` (the value, possibly undefined)
  */
 function resolvePropertyPath(obj: any, path: string): PropertyResolution {
-  // Handle literal property name first (backward compatibility)
-  if (path in obj) {
-    return { found: true, value: obj[path] };
-  }
-
   // Parse path into segments: 'user.items[0].name' -> ['user', 'items', '0', 'name']
   const segments = path
     .replace(/\[(\d+)\]/g, '.$1')  // Convert items[0] to items.0
