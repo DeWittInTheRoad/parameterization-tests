@@ -122,7 +122,19 @@ iit('age: $user.age, email: $user.email', (tc) => {
 //              Found              Not found - check your data!
 ```
 
-**Note:** Placeholders always use nested property access. Property names with literal dots (e.g., `{"user.name": "value"}`) are not supported - restructure your test data to use proper nesting instead.
+**Bracket Notation:**
+- ✅ **Array indexing:** `$items[0]`, `$users[1].name`, `$matrix[0][1]`
+- ❌ **Object properties:** `$user['name']` not supported - use `$user.name` instead
+
+If your property names contain special characters (hyphens, dots, etc.), restructure your test data to use camelCase or proper nesting:
+
+```typescript
+// ❌ Avoid - requires bracket notation
+{ 'user-name': 'Eleanor', 'user.email': 'test@example.com' }
+
+// ✅ Use instead - works with dot notation
+{ userName: 'Eleanor', user: { email: 'test@example.com' } }
+```
 
 ## Table Format
 
