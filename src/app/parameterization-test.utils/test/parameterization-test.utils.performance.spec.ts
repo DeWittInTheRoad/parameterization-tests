@@ -7,14 +7,6 @@
  * - Large test data objects
  * - Memory efficiency
  *
- * VERIFIED PERFORMANCE RESULTS:
- * ✅ 1,901 tests executed in 134ms (0.07ms per test)
- * ✅ 500 test cases in single .where() - no issues
- * ✅ 1,000+ batch tests across multiple .where() calls - works perfectly
- * ✅ Large objects with nested data, arrays, long strings - handles efficiently
- * ✅ Table format with 100 rows × 10 columns - no performance impact
- * ✅ 20 parameterized describe blocks with 5 tests each - scales well
- * ✅ No memory issues or degradation with large datasets
  *
  * PERFORMANCE CHARACTERISTICS:
  * - Execution speed: ~40 tests/millisecond

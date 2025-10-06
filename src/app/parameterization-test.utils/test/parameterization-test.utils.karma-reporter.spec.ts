@@ -8,11 +8,11 @@
  * how Karma reports parameterized test failures.
  *
  * VERIFIED BEHAVIOR:
- * ✅ Test names display correctly with interpolated values
- * ✅ Each parameterized test case is reported as individual test
- * ✅ Failures show exact test name (e.g., "test case 1 with value 2 FAILED")
- * ✅ Stack traces include line numbers and proper call chain
- * ✅ Success/failure counts are accurate per test case
+ * Test names display correctly with interpolated values
+ * Each parameterized test case is reported as individual test
+ * ailures show exact test name (e.g., "test case 1 with value 2 FAILED")
+ * Stack traces include line numbers and proper call chain
+ * ✅Success/failure counts are accurate per test case
  */
 
 import { iit, idescribe, xiit } from '../parameterization-test.utils';
