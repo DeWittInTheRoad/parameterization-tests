@@ -343,6 +343,44 @@ iit('test $name', fakeAsync((tc) => {
 
 ---
 
+### ⏱️ Custom Timeouts (Supported)
+
+By default, tests use Jasmine's default timeout (5000ms). You can override this globally or per test case:
+
+**Global timeout for all test cases:**
+```typescript
+iit('slow test $name', async (tc) => {
+  await slowOperation(tc.name);
+}).where([
+  { name: 'test1' },
+  { name: 'test2' }
+], { timeout: 15000 });  // 15 seconds for all tests
+```
+
+**Per-test-case timeout:**
+```typescript
+iit('test $name', async (tc) => {
+  await operation(tc.name);
+}).where([
+  { name: 'fast-test', _timeout: 2000 },   // 2 seconds
+  { name: 'slow-test', _timeout: 30000 }   // 30 seconds
+]);
+```
+
+**Precedence:** Per-case `_timeout` > Global `timeout` > Jasmine default (5000ms)
+
+**Mixed usage:**
+```typescript
+iit('test $name', async (tc) => {
+  await operation(tc.name);
+}).where([
+  { name: 'fast-test', _timeout: 1000 },  // Uses 1 second
+  { name: 'normal-test' }                  // Uses global 10 seconds
+], { timeout: 10000 });
+```
+
+---
+
 ### ❌ done() Callback (Not Supported)
 
 The older Jasmine pattern using the `done()` callback is **not supported** by our API:
@@ -383,10 +421,10 @@ iit('test $name', async (tc) => {
 | **`done()` callback** | ❌ No | **Intentional design choice** - use `async/await` instead |
 | **Promise chains** | ✅ Yes | Passed through to Jasmine - works automatically |
 | **expectAsync()** | ✅ Yes | Passed through to Jasmine - works automatically |
+| **Custom timeouts** | ✅ Yes | Via `.where()` options or `_timeout` property |
 
 **Key principle:** We call your test function with your test case data and pass the result to Jasmine. Any async pattern that works in a Jasmine test function works here (except `done()` callback, which we intentionally excluded for API simplicity).
 
 **What we don't support from Jasmine's API:**
 - `done()` callback parameter (intentional design choice - use `async/await`)
-- Timeout parameter (Jasmine's third parameter: `it('test', fn, 5000)`)
 - Pending tests without a function (Jasmine's `it('pending test')` with no function)

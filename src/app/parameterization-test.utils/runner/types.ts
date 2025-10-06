@@ -49,3 +49,15 @@ export const DataFormat = {
   TABLE: 'table' as const,
   OBJECT: 'object' as const
 } as const;
+
+/**
+ * Options for .where() method
+ */
+export interface WhereOptions {
+  /**
+   * Global timeout in milliseconds for all test cases
+   * Can be overridden per test case using `_timeout` property
+   * If not specified, uses Jasmine's default timeout (5000ms)
+   */
+  timeout?: number;
+}

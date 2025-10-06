@@ -7,7 +7,8 @@ import type {
   TestFunction,
   DescribeFunction,
   TestSuite,
-  TableFormat
+  TableFormat,
+  WhereOptions
 } from './types';
 import { DataFormat } from './types';
 import { detectDataFormat } from '../formatters/detect-data-format';
@@ -37,7 +38,7 @@ import { validateObjectConsistency } from '../formatters/validate-object-consist
  * ```
  */
 export const createParameterizedRunner = <T extends TestFunction | DescribeFunction>(
-  jasmineFn: (name: string, fn: any) => any
+  jasmineFn: (name: string, fn: any, timeout?: number) => any
 ) => (nameTemplate: string, testFn: T) => {
   if (!nameTemplate || typeof nameTemplate !== 'string') {
     throw new Error(
@@ -59,9 +60,10 @@ export const createParameterizedRunner = <T extends TestFunction | DescribeFunct
      * Automatically detects the data format (object or table) and applies the appropriate formatting.
      *
      * @param testCases - Test data in object or table format
+     * @param options - Optional configuration (timeout, etc.)
      * @throws If testCases is not an array
      */
-    where: (testCases: TestSuite | TableFormat) => {
+    where: (testCases: TestSuite | TableFormat, options?: WhereOptions) => {
       if (!Array.isArray(testCases)) {
         throw new Error(
           `Test cases must be an array for template "${nameTemplate}", received: ${typeof testCases}`
@@ -84,9 +86,10 @@ export const createParameterizedRunner = <T extends TestFunction | DescribeFunct
 
         normalizedCases.forEach((testCase, index) => {
           const testName = formatObjectTestName(nameTemplate, testCase, index);
+          const timeout = testCase['_timeout'] ?? options?.timeout;
           jasmineFn(testName, function(this: unknown) {
             return (testFn as TestFunction | DescribeFunction).call(this, testCase);
-          });
+          }, timeout);
         });
         return;
       }
@@ -99,9 +102,10 @@ export const createParameterizedRunner = <T extends TestFunction | DescribeFunct
 
       objectCases.forEach((testCase, index) => {
         const testName = formatObjectTestName(nameTemplate, testCase, index);
+        const timeout = testCase['_timeout'] ?? options?.timeout;
         jasmineFn(testName, function(this: unknown) {
           return (testFn as TestFunction | DescribeFunction).call(this, testCase);
-        });
+        }, timeout);
       });
     }
   };
