@@ -1,5 +1,5 @@
 /**
- * Jasmine API Contract Tests
+ * Jasmine Mock Tests
  *
  * These tests verify that our parameterization utilities correctly integrate with
  * Jasmine's API by mocking Jasmine functions to verify:
@@ -8,13 +8,13 @@
  * - Error handling works as expected
  * - Edge cases are properly handled
  *
- * Unlike integration.spec.ts (which runs real Jasmine E2E tests),
+ * Unlike jasmine-integration.spec.ts (which runs real Jasmine E2E tests),
  * these tests use Jasmine spies to verify the contract between our code and Jasmine.
  */
 
 import { createParameterizedRunner } from '../runner/create-parameterized-runner';
 
-describe('Jasmine API Contract Tests', () => {
+describe('Jasmine Mock Tests', () => {
 
     // ===========================================
     // OBJECT FORMAT

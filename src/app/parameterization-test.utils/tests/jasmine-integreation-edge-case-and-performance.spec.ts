@@ -8,7 +8,7 @@
  * - Scalability and memory efficiency
  *
  * These are integration tests that run real Jasmine but focus on edge cases
- * rather than core functionality (which is tested in integration.spec.ts).
+ * rather than core functionality (which is tested in jasmine-integration.spec.ts).
  */
 
 import { iit, idescribe, xiit } from '../parameterization-test.utils';

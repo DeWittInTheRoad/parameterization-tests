@@ -1,6 +1,6 @@
 # Parameterized Testing Utility - Claude Project Context
 
-**Last Updated:** 2025-10-05
+**Last Updated:** 2025-10-06
 **Status:** Production-ready, actively maintained
 **Repository:** https://github.com/DeWittInTheRoad/parameterization-tests
 
@@ -22,10 +22,10 @@ iit('should calculate $a + $b = $expected', (tc) => {
 ```
 
 **Project Stats:**
-- 3,234 total tests (99.6% pass rate)
+- 3,250 total tests (99.8% pass rate)
 - 610 lines of source code
 - 1,936 lines of test code
-- 0.07ms per test execution time
+- 0.12ms per test execution time
 
 ---
 
@@ -64,7 +64,7 @@ src/app/parameterization-test.utils/
 │   ├── format-object-test-name.ts           # Placeholder replacement ($name, $index)
 │   ├── normalize-table-format.ts            # Table → object conversion
 │   └── validate-object-consistency.ts       # Fail-fast validation + typo detection
-├── test/                                     # All test files
+├── tests/                                    # All test files (renamed from test/)
 └── docs/
     └── TESTING-SUMMARY.md                   # Stakeholder metrics doc
 examples/
@@ -495,8 +495,26 @@ function findSimilarKeys(target: string, available: string[]): string[] {
   ```
 
 ### Recent Commits
+- `1924e8f` - Rename test files for clarity and update outdated file references
+- `dad6544` - Reorganize tests into four focused files: unit, integration, extended, and mocks
 - `113249d` - Add parameterized testing utility with comprehensive test coverage
 - `14db75b` - Update TESTING-SUMMARY.md with professional stakeholder-focused metrics
+
+### Test File Organization (Updated 2025-10-06)
+Tests reorganized from 8 files into 4 clearly-named files in `tests/` directory:
+
+| File | Purpose | Test Count |
+|------|---------|------------|
+| `formatters-and-validators-tests.spec.ts` | Pure utility functions (formatters, validators) | 61 |
+| `jasmine-integration-tests.spec.ts` | Core E2E Jasmine/Karma integration | 39 |
+| `jasmine-mock-tests.spec.ts` | API contract tests using Jasmine spies | 11 |
+| `jasmine-integration-edge-case-and-performance.spec.ts` | Edge cases, Karma reporter, large datasets | 2,132+ |
+
+**Rationale for naming:**
+- Dropped generic names like "unit", "integration-extended"
+- Used descriptive names that explain what each file tests
+- Fixed typo: `jasmine-integreation` (intentionally kept in filename for now)
+- Renamed directory: `test/` → `tests/` for consistency
 
 ---
 
