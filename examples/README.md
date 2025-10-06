@@ -234,7 +234,7 @@ describe('MyComponent', () => {
 
 ## Asynchronous Tests
 
-Parameterized tests work seamlessly with Jasmine's async support. Since we pass your test functions directly to Jasmine, **anything Jasmine supports, we support**.
+Parameterized tests work seamlessly with Jasmine's async support. We call your test function with your test case data and pass the result to Jasmine, so **any async pattern that works in a Jasmine test function body works here** (with one exception: the legacy `done()` callback, which we intentionally don't support).
 
 ### ✅ Async/Await (Fully Supported)
 
@@ -384,4 +384,9 @@ iit('test $name', async (tc) => {
 | **Promise chains** | ✅ Yes | Passed through to Jasmine - works automatically |
 | **expectAsync()** | ✅ Yes | Passed through to Jasmine - works automatically |
 
-**Key principle:** We pass your test function directly to Jasmine with your test case data. Anything Jasmine supports, we support (except `done()` callback, which we intentionally excluded for API simplicity)
+**Key principle:** We call your test function with your test case data and pass the result to Jasmine. Any async pattern that works in a Jasmine test function works here (except `done()` callback, which we intentionally excluded for API simplicity).
+
+**What we don't support from Jasmine's API:**
+- `done()` callback parameter (intentional design choice - use `async/await`)
+- Timeout parameter (Jasmine's third parameter: `it('test', fn, 5000)`)
+- Pending tests without a function (Jasmine's `it('pending test')` with no function)
