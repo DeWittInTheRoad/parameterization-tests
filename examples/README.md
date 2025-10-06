@@ -234,12 +234,13 @@ describe('MyComponent', () => {
 
 ## Asynchronous Tests
 
-Parameterized tests fully support `async/await` for asynchronous operations. Use the modern `async/await` pattern instead of the older `done()` callback style.
+Parameterized tests work seamlessly with Jasmine's async support. Since we pass your test functions directly to Jasmine, **anything Jasmine supports, we support**.
 
-### Basic Async/Await
+### ✅ Async/Await (Fully Supported)
+
+The modern way to handle async operations. Works perfectly with parameterized tests:
 
 ```typescript
-// ✅ Recommended: async/await pattern
 iit('should fetch user $userId', async (tc) => {
   const user = await userService.getUser(tc.userId);
   expect(user.id).toBe(tc.userId);
@@ -250,8 +251,7 @@ iit('should fetch user $userId', async (tc) => {
 ]);
 ```
 
-### Multiple Awaits
-
+**Multiple awaits:**
 ```typescript
 iit('should process $operation asynchronously', async (tc) => {
   const result1 = await apiService.step1(tc.input);
@@ -265,8 +265,7 @@ iit('should process $operation asynchronously', async (tc) => {
 ]);
 ```
 
-### Promise.all for Parallel Operations
-
+**Parallel operations:**
 ```typescript
 iit('should handle parallel requests for $scenario', async (tc) => {
   const [user, posts, comments] = await Promise.all([
@@ -277,34 +276,13 @@ iit('should handle parallel requests for $scenario', async (tc) => {
 
   expect(user.id).toBe(tc.userId);
   expect(posts.length).toBeGreaterThan(0);
-  expect(comments.length).toBeGreaterThan(0);
 }).where([
   { scenario: 'active user', userId: 1 },
   { scenario: 'new user', userId: 2 }
 ]);
 ```
 
-### Angular's fakeAsync and tick
-
-```typescript
-import { fakeAsync, tick } from '@angular/core/testing';
-
-// Note: Cannot use async/await with fakeAsync - use regular function
-iit('should debounce $input after $delay ms', fakeAsync((tc) => {
-  let result: string | undefined;
-
-  component.search(tc.input).subscribe(value => result = value);
-  tick(tc.delay);
-
-  expect(result).toBe(tc.expected);
-})).where([
-  { input: 'test1', delay: 300, expected: 'result1' },
-  { input: 'test2', delay: 500, expected: 'result2' }
-]);
-```
-
-### Error Handling with Async
-
+**Error handling:**
 ```typescript
 iit('should reject invalid $input', async (tc) => {
   await expectAsync(
@@ -314,37 +292,96 @@ iit('should reject invalid $input', async (tc) => {
   { input: '', expectedError: 'Input cannot be empty' },
   { input: 'invalid', expectedError: 'Invalid format' }
 ]);
-
-// Or with try/catch
-iit('should throw error for $input', async (tc) => {
-  try {
-    await apiService.process(tc.input);
-    fail('Expected error to be thrown');
-  } catch (error: any) {
-    expect(error.message).toBe(tc.expectedError);
-  }
-}).where([
-  { input: null, expectedError: 'Null input not allowed' },
-  { input: undefined, expectedError: 'Undefined input not allowed' }
-]);
 ```
 
-### Timeouts for Slow Operations
+---
+
+### ✅ Angular's fakeAsync (Fully Supported)
+
+Angular's `fakeAsync` and `tick` work with parameterized tests because **we pass your function directly to Jasmine** - Angular's testing utilities see it as a normal Jasmine test:
 
 ```typescript
-iit('should complete $operation within timeout', async (tc) => {
-  const startTime = Date.now();
-  await slowService.performOperation(tc.operation);
-  const duration = Date.now() - startTime;
+import { fakeAsync, tick } from '@angular/core/testing';
 
-  expect(duration).toBeLessThan(tc.maxDuration);
-}).where([
-  { operation: 'fast-op', maxDuration: 100 },
-  { operation: 'slow-op', maxDuration: 1000 }
+iit('should debounce $input after $delay ms', fakeAsync((tc) => {
+  let result: string | undefined;
+
+  component.search(tc.input).subscribe(value => result = value);
+  tick(tc.delay);  // Fast-forward time
+
+  expect(result).toBe(tc.expected);
+})).where([
+  { input: 'test1', delay: 300, expected: 'result1' },
+  { input: 'test2', delay: 500, expected: 'result2' }
 ]);
 ```
 
-**Important Notes:**
-- ✅ **Use `async/await`** - Modern, clean, and works perfectly with parameterized tests
-- ❌ **Don't use `done()` callback** - Not supported (use `async/await` instead)
-- ⚠️ **`fakeAsync` incompatibility** - Cannot combine `async/await` with `fakeAsync`/`tick` - use regular functions with `fakeAsync`
+**⚠️ Angular Limitation (not our limitation):**
+You cannot combine `async/await` with `fakeAsync` - this is an Angular framework constraint, not a limitation of parameterized tests:
+
+```typescript
+// ❌ Won't work - Angular doesn't allow async/await with fakeAsync
+iit('test $name', fakeAsync(async (tc) => {
+  await something();  // Error: async/await escapes fakeAsync's control
+  tick(100);
+})).where([...]);
+
+// ✅ Use either async/await OR fakeAsync, not both
+iit('test $name', async (tc) => {
+  await something();  // Real async
+}).where([...]);
+
+iit('test $name', fakeAsync((tc) => {
+  something();
+  tick(100);  // Controlled async
+})).where([...]);
+```
+
+**When to use each:**
+- **`async/await`**: HTTP calls, real promises, any actual async operations
+- **`fakeAsync/tick`**: Timers (setTimeout, debounce), Angular change detection, RxJS timing operators
+
+---
+
+### ❌ done() Callback (Not Supported)
+
+The older Jasmine pattern using the `done()` callback is **not supported** by our API:
+
+```typescript
+// ❌ This doesn't work with parameterized tests
+iit('test $name', (tc, done) => {
+  asyncOperation().then(result => {
+    expect(result).toBe(tc.expected);
+    done();  // Signal test completion
+  });
+}).where([...]);
+```
+
+**Why not supported:**
+This is an **intentional API design choice**. Supporting `done()` would require complex TypeScript function overloads and make our type signatures harder to understand. Since `async/await` is the modern standard and provides a cleaner API, we chose not to support the legacy `done()` pattern.
+
+**Workaround:**
+Just use `async/await` - it's cleaner and more readable:
+
+```typescript
+// ✅ Modern equivalent using async/await
+iit('test $name', async (tc) => {
+  const result = await asyncOperation();
+  expect(result).toBe(tc.expected);
+}).where([...]);
+```
+
+---
+
+## What We Support vs. What We Don't
+
+| Feature | Supported? | Reason |
+|---------|-----------|---------|
+| **`async/await`** | ✅ Yes | Passed through to Jasmine - works automatically |
+| **`fakeAsync/tick`** | ✅ Yes | Passed through to Angular - works automatically |
+| **`fakeAsync` + `async/await`** | ❌ No | **Angular limitation** - framework incompatibility |
+| **`done()` callback** | ❌ No | **Intentional design choice** - use `async/await` instead |
+| **Promise chains** | ✅ Yes | Passed through to Jasmine - works automatically |
+| **expectAsync()** | ✅ Yes | Passed through to Jasmine - works automatically |
+
+**Key principle:** We pass your test function directly to Jasmine with your test case data. Anything Jasmine supports, we support (except `done()` callback, which we intentionally excluded for API simplicity)
