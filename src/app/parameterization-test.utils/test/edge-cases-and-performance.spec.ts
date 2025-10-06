@@ -1,9 +1,14 @@
 /**
- * Extended Integration Tests for Parameterized Testing Utility
+ * Edge Cases and Performance Tests
  *
- * These tests cover edge cases, Karma reporter integration, and performance
- * with large datasets. They verify special JavaScript values, output formatting,
- * and scalability of the parameterization utility.
+ * These tests verify advanced features and edge cases:
+ * - Special JavaScript values (circular objects, BigInt, Date, null, undefined)
+ * - Karma reporter output formatting and test name display
+ * - Performance with large datasets (1000+ test cases)
+ * - Scalability and memory efficiency
+ *
+ * These are integration tests that run real Jasmine but focus on edge cases
+ * rather than core functionality (which is tested in integration.spec.ts).
  */
 
 import { iit, idescribe, xiit } from '../parameterization-test.utils';

@@ -1,16 +1,20 @@
 /**
- * Mock Integration Tests for Parameterized Testing Utility
+ * Jasmine API Contract Tests
  *
- * These tests verify the integration between public API and Jasmine by mocking
- * Jasmine functions to verify correct data flow, error handling, and edge cases.
+ * These tests verify that our parameterization utilities correctly integrate with
+ * Jasmine's API by mocking Jasmine functions to verify:
+ * - Correct data is passed to Jasmine's it() and describe()
+ * - Test names are formatted correctly
+ * - Error handling works as expected
+ * - Edge cases are properly handled
  *
- * Unlike parameterization-test.utils.integration.spec.ts (E2E tests that run real Jasmine),
- * these tests mock Jasmine to verify what data is passed and how errors are handled.
+ * Unlike integration.spec.ts (which runs real Jasmine E2E tests),
+ * these tests use Jasmine spies to verify the contract between our code and Jasmine.
  */
 
 import { createParameterizedRunner } from '../runner/create-parameterized-runner';
 
-describe('Parameterized Testing Utility - Mock Integration', () => {
+describe('Jasmine API Contract Tests', () => {
 
     // ===========================================
     // OBJECT FORMAT
