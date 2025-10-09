@@ -2,6 +2,31 @@
 
 Data-driven testing for Jasmine/Angular with clean, readable syntax.
 
+## Table of Contents
+
+- [Quick Start](#quick-start)
+- [API Reference](#api-reference)
+  - [Individual Tests](#individual-tests)
+  - [Test Suites](#test-suites)
+- [Object Format](#object-format)
+  - [Using `$index`](#using-index)
+  - [Nested Property Access](#nested-property-access)
+- [Table Format](#table-format)
+- [Parameterized Test Suites](#parameterized-test-suites)
+- [Focus and Exclusion](#focus-and-exclusion)
+- [Using Jasmine's `this` Context](#using-jasmines-this-context)
+- [Asynchronous Tests](#asynchronous-tests)
+  - [Async/Await (Fully Supported)](#-asyncawait-fully-supported)
+  - [Angular's fakeAsync (Fully Supported)](#-angulars-fakeasync-fully-supported)
+  - [done() Callback (Not Supported)](#-done-callback-not-supported)
+- [Jasmine/Karma Feature Support](#jasminkarma-feature-support)
+  - [Fully Supported Features](#-fully-supported-features)
+  - [Intentionally Not Supported](#-intentionally-not-supported)
+  - [Test Lifecycle Hooks](#-test-lifecycle-hooks)
+  - [Spies and Mocking](#-spies-and-mocking)
+  - [Timeout Configuration](#️-timeout-configuration)
+  - [Key Principle](#-key-principle)
+
 ## Quick Start
 
 ```typescript
@@ -343,44 +368,6 @@ iit('test $name', fakeAsync((tc) => {
 
 ---
 
-### ⏱️ Custom Timeouts (Supported)
-
-By default, tests use Jasmine's default timeout (5000ms). You can override this globally or per test case:
-
-**Global timeout for all test cases:**
-```typescript
-iit('slow test $name', async (tc) => {
-  await slowOperation(tc.name);
-}).where([
-  { name: 'test1' },
-  { name: 'test2' }
-], { timeout: 15000 });  // 15 seconds for all tests
-```
-
-**Per-test-case timeout:**
-```typescript
-iit('test $name', async (tc) => {
-  await operation(tc.name);
-}).where([
-  { name: 'fast-test', _timeout: 2000 },   // 2 seconds
-  { name: 'slow-test', _timeout: 30000 }   // 30 seconds
-]);
-```
-
-**Precedence:** Per-case `_timeout` > Global `timeout` > Jasmine default (5000ms)
-
-**Mixed usage:**
-```typescript
-iit('test $name', async (tc) => {
-  await operation(tc.name);
-}).where([
-  { name: 'fast-test', _timeout: 1000 },  // Uses 1 second
-  { name: 'normal-test' }                  // Uses global 10 seconds
-], { timeout: 10000 });
-```
-
----
-
 ### ❌ done() Callback (Not Supported)
 
 The older Jasmine pattern using the `done()` callback is **not supported** by our API:
@@ -411,20 +398,110 @@ iit('test $name', async (tc) => {
 
 ---
 
-## What We Support vs. What We Don't
+## Jasmine/Karma Feature Support
 
-| Feature | Supported? | Reason |
-|---------|-----------|---------|
-| **`async/await`** | ✅ Yes | Passed through to Jasmine - works automatically |
-| **`fakeAsync/tick`** | ✅ Yes | Passed through to Angular - works automatically |
-| **`fakeAsync` + `async/await`** | ❌ No | **Angular limitation** - framework incompatibility |
-| **`done()` callback** | ❌ No | **Intentional design choice** - use `async/await` instead |
-| **Promise chains** | ✅ Yes | Passed through to Jasmine - works automatically |
-| **expectAsync()** | ✅ Yes | Passed through to Jasmine - works automatically |
+### ✅ Fully Supported Features
+
+Since we pass your test function directly to Jasmine with your test case data, **nearly all Jasmine/Karma features work automatically**:
+
+| Feature | Supported? | Notes |
+|---------|-----------|-------|
+| **`async/await`** | ✅ Yes | Modern async pattern - fully supported |
+| **`fakeAsync/tick`** | ✅ Yes | Angular's time control - works seamlessly |
+| **Promise chains** | ✅ Yes | Standard promise handling works |
+| **`expectAsync()`** | ✅ Yes | Jasmine's async expectations |
 | **Custom timeouts** | ✅ Yes | Via `.where()` options or `_timeout` property |
+| **Spies (jasmine.createSpy)** | ✅ Yes | All spy features work normally |
+| **Custom matchers** | ✅ Yes | Use `jasmine.addMatchers()` as usual |
+| **`beforeEach/afterEach`** | ✅ Yes | Runs once per test case (proper isolation) |
+| **`beforeAll/afterAll`** | ✅ Yes | Runs once per suite as expected |
+| **Error propagation** | ✅ Yes | Failures show in Karma with full stack traces |
+| **`pending()`** | ✅ Yes | Mark tests as pending at runtime |
+| **`this` context** | ✅ Yes | Use regular functions: `function(this: any, tc)` |
+| **Nested describes** | ✅ Yes | `idescribe` can contain regular `describe` blocks |
 
-**Key principle:** We call your test function with your test case data and pass the result to Jasmine. Any async pattern that works in a Jasmine test function works here (except `done()` callback, which we intentionally excluded for API simplicity).
+### ❌ Intentionally Not Supported
 
-**What we don't support from Jasmine's API:**
-- `done()` callback parameter (intentional design choice - use `async/await`)
-- Pending tests without a function (Jasmine's `it('pending test')` with no function)
+| Feature | Supported? | Reason / Workaround |
+|---------|-----------|---------------------|
+| **`done()` callback** | ❌ No | **Design choice** - use `async/await` instead for cleaner code |
+| **`fakeAsync` + `async/await`** | ❌ No | **Angular framework limitation** - mutually exclusive features |
+| **Pending tests without function** | ❌ No | Jasmine's `it('pending')` syntax - use `xit()` or `pending()` inside test |
+
+### 🔄 Test Lifecycle Hooks
+
+Jasmine's lifecycle hooks work exactly as expected with parameterized tests:
+
+```typescript
+describe('MyComponent', () => {
+  let component: MyComponent;
+
+  beforeEach(() => {
+    // Runs BEFORE EACH test case
+    component = new MyComponent();
+  });
+
+  afterEach(() => {
+    // Runs AFTER EACH test case
+    component = null;
+  });
+
+  iit('should handle $scenario', (tc) => {
+    component.setValue(tc.input);
+    expect(component.getValue()).toBe(tc.expected);
+  }).where([
+    { scenario: 'positive', input: 5, expected: 5 },
+    { scenario: 'negative', input: -3, expected: -3 }
+  ]);
+  // beforeEach runs 2 times (once per test case)
+  // afterEach runs 2 times (once per test case)
+});
+```
+
+### 🔍 Spies and Mocking
+
+Standard Jasmine spy functionality works without modification:
+
+```typescript
+iit('should call service with $method', (tc) => {
+  const spy = jasmine.createSpy('apiCall');
+  service.apiCall = spy;
+
+  service.execute(tc.method);
+
+  expect(spy).toHaveBeenCalledWith(tc.method);
+  expect(spy).toHaveBeenCalledTimes(1);
+}).where([
+  { method: 'GET' },
+  { method: 'POST' }
+]);
+```
+
+### ⏱️ Timeout Configuration
+
+**Global timeout for all test cases:**
+```typescript
+iit('slow test $name', async (tc) => {
+  await slowOperation(tc.name);
+}).where([...], { timeout: 15000 });  // 15 seconds for all
+```
+
+**Per-test-case timeout:**
+```typescript
+iit('test $name', async (tc) => {
+  await operation(tc.name);
+}).where([
+  { name: 'fast', _timeout: 2000 },   // 2 seconds
+  { name: 'slow', _timeout: 30000 }   // 30 seconds
+]);
+```
+
+**Precedence:** `_timeout` (per-case) > `timeout` (global) > Jasmine default (5000ms)
+
+### 🎯 Key Principle
+
+**We pass your test function to Jasmine with your test case data.** This means:
+- ✅ Any pattern that works in Jasmine's test function body works here
+- ✅ Errors, failures, and stack traces are preserved
+- ✅ Karma reporter shows individual test names with actual values
+- ❌ Only exception: `done()` callback (intentionally excluded for API simplicity)
