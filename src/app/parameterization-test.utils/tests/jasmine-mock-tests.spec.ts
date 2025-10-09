@@ -305,5 +305,90 @@ describe('Jasmine Mock Tests', () => {
             expect(mockJasmineFn.calls.argsFor(0)[2]).toBe(3000);
             expect(mockJasmineFn.calls.argsFor(1)[2]).toBe(7000);
         });
+
+        it('should handle zero timeout', () => {
+            const mockJasmineFn = jasmine.createSpy('jasmineFn');
+            const testFn = jasmine.createSpy('testFn');
+
+            const runner = createParameterizedRunner(mockJasmineFn);
+            runner('test $value', testFn).where([
+                {value: 1}
+            ], { timeout: 0 });
+
+            expect(mockJasmineFn.calls.argsFor(0)[2]).toBe(0);
+        });
+
+        it('should handle negative timeout', () => {
+            const mockJasmineFn = jasmine.createSpy('jasmineFn');
+            const testFn = jasmine.createSpy('testFn');
+
+            const runner = createParameterizedRunner(mockJasmineFn);
+            runner('test $value', testFn).where([
+                {value: 1}
+            ], { timeout: -1000 });
+
+            expect(mockJasmineFn.calls.argsFor(0)[2]).toBe(-1000);
+        });
+
+        it('should pass null timeout to Jasmine', () => {
+            const mockJasmineFn = jasmine.createSpy('jasmineFn');
+            const testFn = jasmine.createSpy('testFn');
+
+            const runner = createParameterizedRunner(mockJasmineFn);
+            runner('test $value', testFn).where([
+                {value: 1}
+            ], { timeout: null as any });
+
+            expect(mockJasmineFn.calls.argsFor(0)[2]).toBe(null);
+        });
+
+        it('should handle very large timeout values', () => {
+            const mockJasmineFn = jasmine.createSpy('jasmineFn');
+            const testFn = jasmine.createSpy('testFn');
+
+            const runner = createParameterizedRunner(mockJasmineFn);
+            runner('test $value', testFn).where([
+                {value: 1}
+            ], { timeout: Number.MAX_SAFE_INTEGER });
+
+            expect(mockJasmineFn.calls.argsFor(0)[2]).toBe(Number.MAX_SAFE_INTEGER);
+        });
+
+        it('should handle NaN in per-case _timeout', () => {
+            const mockJasmineFn = jasmine.createSpy('jasmineFn');
+            const testFn = jasmine.createSpy('testFn');
+
+            const runner = createParameterizedRunner(mockJasmineFn);
+            runner('test $value', testFn).where([
+                {value: 1, _timeout: NaN}
+            ]);
+
+            expect(mockJasmineFn.calls.argsFor(0)[2]).toBeNaN();
+        });
+
+        it('should handle table format with global timeout and mixed _timeout', () => {
+            const mockJasmineFn = jasmine.createSpy('jasmineFn');
+            const testFn = jasmine.createSpy('testFn');
+
+            const runner = createParameterizedRunner(mockJasmineFn);
+            runner('test $a + $b', testFn).where([
+                ['a', 'b', '_timeout'],
+                [1, 2, 5000],      // Per-case wins
+                [3, 4, undefined]  // Uses global
+            ], { timeout: 10000 });
+
+            expect(mockJasmineFn.calls.argsFor(0)[2]).toBe(5000);
+            expect(mockJasmineFn.calls.argsFor(1)[2]).toBe(10000);
+        });
+
+        it('should handle empty array with timeout options', () => {
+            const mockJasmineFn = jasmine.createSpy('jasmineFn');
+            const testFn = jasmine.createSpy('testFn');
+
+            const runner = createParameterizedRunner(mockJasmineFn);
+            runner('test $value', testFn).where([], { timeout: 10000 });
+
+            expect(mockJasmineFn).not.toHaveBeenCalled();
+        });
     });
 });

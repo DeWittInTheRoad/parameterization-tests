@@ -540,3 +540,53 @@ describe('Async Error Handling - Error Surface Validation', () => {
         }).where([{id: 1}, {id: 2}, {id: 3}]);
     });
 });
+
+// ===========================================
+// COMBINATION SCENARIOS
+// ===========================================
+
+describe('Combination Scenarios - Multiple Features Together', () => {
+
+    describe('table format + nested properties + timeout', () => {
+        iit('case $index: $user.name with timeout', (testCase: any) => {
+            expect(testCase.user.name).toBeDefined();
+            expect(testCase.timeout).toBeGreaterThan(0);
+        }).where([
+            ['user', 'timeout', '_timeout'],
+            [{ name: 'Eleanor' }, 5000, 5000],
+            [{ name: 'Winston' }, 10000, 10000]
+        ]);
+    });
+
+    describe('table format + nested properties without timeout', () => {
+        iit('$data.value at index $index', (testCase: any) => {
+            expect(testCase.data.value).toBeDefined();
+            expect(testCase.index).toBeGreaterThan(0);
+        }).where([
+            ['data', 'index'],
+            [{ value: 'first' }, 1],
+            [{ value: 'second' }, 2]
+        ]);
+    });
+
+    describe('table format with $index and _timeout', () => {
+        iit('case $index: $value', (testCase: any) => {
+            expect(testCase.value).toBeDefined();
+        }).where([
+            ['value', '_timeout'],
+            ['test1', 5000],
+            ['test2', 10000]
+        ]);
+    });
+
+    describe('empty array with timeout', () => {
+        it('should not create any tests when array is empty', () => {
+            let executed = false;
+            iit('should not run', () => {
+                executed = true;
+            }).where([], { timeout: 10000 });
+
+            expect(executed).toBe(false);
+        });
+    });
+});

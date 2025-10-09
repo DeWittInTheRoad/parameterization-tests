@@ -107,22 +107,29 @@ export function validateObjectConsistency(
     return;
   }
 
-  const firstKeys = new Set(Object.keys(rows[0]));
+  // Filter out reserved optional properties that don't need to be consistent
+  const RESERVED_OPTIONAL_KEYS = new Set(['_timeout']);
+
+  const firstKeys = new Set(
+    Object.keys(rows[0]).filter(key => !RESERVED_OPTIONAL_KEYS.has(key))
+  );
 
   for (let index = 1; index < rows.length; index++) {
     const row = rows[index];
-    const rowKeys = new Set(Object.keys(row));
+    const rowKeys = new Set(
+      Object.keys(row).filter(key => !RESERVED_OPTIONAL_KEYS.has(key))
+    );
     const missing: string[] = [];
     const unexpected: string[] = [];
 
-    // Check for missing keys
+    // Check for missing keys (ignoring reserved optional keys)
     for (const key of firstKeys) {
       if (!rowKeys.has(key)) {
         missing.push(key);
       }
     }
 
-    // Check for unexpected keys
+    // Check for unexpected keys (ignoring reserved optional keys)
     for (const key of rowKeys) {
       if (!firstKeys.has(key)) {
         unexpected.push(key);

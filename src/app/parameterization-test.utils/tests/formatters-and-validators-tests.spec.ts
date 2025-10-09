@@ -199,6 +199,55 @@ describe('Formatters and Validators - Unit Tests', () => {
             }, 0);
             expect(result).toBe('Eleanor is 30 years old');
         });
+
+        it('should handle property names with special regex characters', () => {
+            const result = formatObjectTestName('value: $data', { data: 'test*value' }, 0);
+            expect(result).toBe('value: test*value');
+        });
+
+        it('should handle placeholders with special characters that do not match properties', () => {
+            // These should be left unchanged because they don't match valid property paths
+            const result = formatObjectTestName('$user[*] $data.prop+', { user: 'test' }, 0);
+            expect(result).toBe('$user[*] $data.prop+');
+        });
+
+        it('should handle very deep nesting (10 levels)', () => {
+            const deepObj = {
+                a: { b: { c: { d: { e: { f: { g: { h: { i: { j: 'deep-value' } } } } } } } } }
+            };
+            const result = formatObjectTestName('$a.b.c.d.e.f.g.h.i.j', deepObj, 0);
+            expect(result).toBe('deep-value');
+        });
+
+        it('should handle circular references gracefully', () => {
+            const circular: any = { name: 'test' };
+            circular.self = circular;
+
+            // Should access the non-circular property fine
+            const result = formatObjectTestName('$name', circular, 0);
+            expect(result).toBe('test');
+        });
+
+        it('should handle array access with out-of-bounds index', () => {
+            const result = formatObjectTestName('$items[10]', { items: ['a', 'b'] }, 0);
+            // Out of bounds - property not found (10 not in array), so placeholder unchanged
+            expect(result).toBe('$items[10]');
+        });
+
+        it('should handle nested property after array access', () => {
+            const result = formatObjectTestName('$users[0].email', {
+                users: [{ email: 'test@example.com' }]
+            }, 0);
+            expect(result).toBe('test@example.com');
+        });
+
+        it('should handle mixed $index and nested properties', () => {
+            const result = formatObjectTestName('case $index: $user.name', {
+                user: { name: 'Eleanor' },
+                index: 999
+            }, 5);
+            expect(result).toBe('case 5: Eleanor');
+        });
     });
 
     // ===========================================
@@ -296,6 +345,59 @@ describe('Formatters and Validators - Unit Tests', () => {
             expect(result).toEqual([
                 { obj, arr }
             ]);
+        });
+
+        it('should handle duplicate header names (last value wins)', () => {
+            const result = normalizeTableFormat([
+                ['name', 'name'],
+                ['Eleanor', 'Winston']
+            ]);
+
+            // Last column with same name wins
+            expect(result).toEqual([
+                { name: 'Winston' }
+            ]);
+        });
+
+        it('should handle empty string headers', () => {
+            const result = normalizeTableFormat([
+                ['', 'value'],
+                ['test', 'data']
+            ]);
+
+            // Empty string becomes a valid property key
+            expect(result).toEqual([
+                { '': 'test', 'value': 'data' }
+            ]);
+        });
+
+        it('should handle headers with special characters', () => {
+            const result = normalizeTableFormat([
+                ['user-name', 'user.email', 'data[0]'],
+                ['Eleanor', 'test@example.com', 'value']
+            ]);
+
+            expect(result).toEqual([
+                { 'user-name': 'Eleanor', 'user.email': 'test@example.com', 'data[0]': 'value' }
+            ]);
+        });
+
+        it('should throw error for non-string headers', () => {
+            expect(() => {
+                normalizeTableFormat([
+                    ['name', 123, 'value'] as any,
+                    ['Eleanor', 'test', 'data']
+                ]);
+            }).toThrowError(/headers must all be strings/);
+        });
+
+        it('should throw error for row with wrong number of columns', () => {
+            expect(() => {
+                normalizeTableFormat([
+                    ['a', 'b'],
+                    [1, 2, 3]  // Too many columns
+                ]);
+            }).toThrowError(/has 3 values but expected 2/);
         });
     });
 
