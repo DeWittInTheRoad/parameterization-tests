@@ -647,10 +647,13 @@ Tests reorganized from 8 files into 4 clearly-named files in `tests/` directory:
 
 ### Run Tests
 ```bash
-npm test                           # Run all tests
-npm test -- --include='*unit*'     # Run unit tests only
-npm test -- --include='*perf*'     # Run performance tests
+npm test -- --single-run           # Run all tests (PREFERRED - exits when done)
+npm test                           # Run tests in watch mode (hangs, requires Ctrl+C)
+npm test -- --include='*unit*' --single-run     # Run unit tests only
+npm test -- --include='*perf*' --single-run     # Run performance tests
 ```
+
+**IMPORTANT:** Always use `--single-run` flag when running tests to avoid Karma hanging in watch mode.
 
 ### Build
 ```bash
